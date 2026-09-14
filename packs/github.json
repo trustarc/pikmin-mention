@@ -1,0 +1,176 @@
+{
+  "id": "github",
+  "name": "GitHub",
+  "version": 12,
+  "match": {
+    "domains": [
+      "github.com"
+    ],
+    "apps": []
+  },
+  "shortcuts": [
+    {
+      "id": "pikmin-gpt-5.6-sol-low",
+      "keys": [],
+      "label": "gpt-5.6-sol \u00b7 low",
+      "category": "Pikmin",
+      "mention": true,
+      "insert": "--model gpt-5.6-sol --effort low"
+    },
+    {
+      "id": "pikmin-gpt-5.6-sol-medium",
+      "keys": [],
+      "label": "gpt-5.6-sol \u00b7 medium",
+      "category": "Pikmin",
+      "mention": true,
+      "insert": "--model gpt-5.6-sol --effort medium"
+    },
+    {
+      "id": "pikmin-gpt-5.6-sol-high",
+      "keys": [],
+      "label": "gpt-5.6-sol \u00b7 high",
+      "category": "Pikmin",
+      "mention": true,
+      "insert": "--model gpt-5.6-sol --effort high"
+    },
+    {
+      "id": "pikmin-gpt-5.6-sol-xhigh",
+      "keys": [],
+      "label": "gpt-5.6-sol \u00b7 xhigh",
+      "category": "Pikmin",
+      "mention": true,
+      "insert": "--model gpt-5.6-sol --effort xhigh"
+    },
+    {
+      "id": "pikmin-gpt-5.6-sol-max",
+      "keys": [],
+      "label": "gpt-5.6-sol \u00b7 max",
+      "category": "Pikmin",
+      "mention": true,
+      "insert": "--model gpt-5.6-sol --effort max"
+    },
+    {
+      "id": "pikmin-gpt-6-astra-low",
+      "keys": [],
+      "label": "gpt-6-astra \u00b7 low",
+      "category": "Pikmin",
+      "mention": true,
+      "insert": "--model gpt-6-astra --effort low"
+    },
+    {
+      "id": "pikmin-gpt-6-astra-medium",
+      "keys": [],
+      "label": "gpt-6-astra \u00b7 medium",
+      "category": "Pikmin",
+      "mention": true,
+      "insert": "--model gpt-6-astra --effort medium"
+    },
+    {
+      "id": "pikmin-gpt-6-astra-high",
+      "keys": [],
+      "label": "gpt-6-astra \u00b7 high",
+      "category": "Pikmin",
+      "mention": true,
+      "insert": "--model gpt-6-astra --effort high"
+    },
+    {
+      "id": "pikmin-gpt-6-astra-xhigh",
+      "keys": [],
+      "label": "gpt-6-astra \u00b7 xhigh",
+      "category": "Pikmin",
+      "mention": true,
+      "insert": "--model gpt-6-astra --effort xhigh"
+    },
+    {
+      "id": "pikmin-gpt-6-astra-max",
+      "keys": [],
+      "label": "gpt-6-astra \u00b7 max",
+      "category": "Pikmin",
+      "mention": true,
+      "insert": "--model gpt-6-astra --effort max"
+    },
+    {
+      "id": "pikmin-opus-low",
+      "keys": [],
+      "label": "opus \u00b7 low",
+      "category": "Pikmin",
+      "mention": true,
+      "insert": "--model opus --effort low"
+    },
+    {
+      "id": "pikmin-opus-medium",
+      "keys": [],
+      "label": "opus \u00b7 medium",
+      "category": "Pikmin",
+      "mention": true,
+      "insert": "--model opus --effort medium"
+    },
+    {
+      "id": "pikmin-opus-high",
+      "keys": [],
+      "label": "opus \u00b7 high",
+      "category": "Pikmin",
+      "mention": true,
+      "insert": "--model opus --effort high"
+    },
+    {
+      "id": "pikmin-opus-xhigh",
+      "keys": [],
+      "label": "opus \u00b7 xhigh",
+      "category": "Pikmin",
+      "mention": true,
+      "insert": "--model opus --effort xhigh"
+    },
+    {
+      "id": "pikmin-opus-max",
+      "keys": [],
+      "label": "opus \u00b7 max",
+      "category": "Pikmin",
+      "mention": true,
+      "insert": "--model opus --effort max"
+    },
+    {
+      "id": "pikmin-fable-low",
+      "keys": [],
+      "label": "fable \u00b7 low",
+      "category": "Pikmin",
+      "mention": true,
+      "insert": "--model fable --effort low"
+    },
+    {
+      "id": "pikmin-fable-medium",
+      "keys": [],
+      "label": "fable \u00b7 medium",
+      "category": "Pikmin",
+      "mention": true,
+      "insert": "--model fable --effort medium"
+    },
+    {
+      "id": "pikmin-fable-high",
+      "keys": [],
+      "label": "fable \u00b7 high",
+      "category": "Pikmin",
+      "mention": true,
+      "insert": "--model fable --effort high"
+    },
+    {
+      "id": "pikmin-fable-xhigh",
+      "keys": [],
+      "label": "fable \u00b7 xhigh",
+      "category": "Pikmin",
+      "mention": true,
+      "insert": "--model fable --effort xhigh"
+    },
+    {
+      "id": "pikmin-fable-max",
+      "keys": [],
+      "label": "fable \u00b7 max",
+      "category": "Pikmin",
+      "mention": true,
+      "insert": "--model fable --effort max"
+    }
+  ],
+  "mention": {
+    "text": "@pikmin-trustarc"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "packs": {
+    "default": {
+      "version": 1
+    },
+    "github": {
+      "version": 12
+    },
+    "jira": {
+      "version": 12
+    },
+    "slack": {
+      "version": 12
+    }
+  }
+}

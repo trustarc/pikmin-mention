@@ -1,0 +1,337 @@
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { invoke } from "@tauri-apps/api/core";
+import { listen } from "@tauri-apps/api/event";
+import { getCurrentWindow } from "@tauri-apps/api/window";
+import { writeHtml, writeText } from "@tauri-apps/plugin-clipboard-manager";
+import CustomForm from "./components/CustomForm";
+import PackTabs from "./components/PackTabs";
+import ShortcutList from "./components/ShortcutList";
+import { resolveContext } from "./context/resolveContext";
+import { formatHotkey, toShortcut } from "./hotkey";
+import { PACKS } from "./packs/packLoader";
+import type { ActiveContext, Settings, Shortcut } from "./types";
+
+const MENTION_DELAY_MS = 700;
+
+export default function App() {
+  const [context, setContext] = useState<ActiveContext | null>(null);
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [settings, setSettings] = useState<Settings | null>(null);
+  const [adding, setAdding] = useState(false);
+  const [defaultHotkey, setDefaultHotkey] = useState("");
+  const [followSelection, setFollowSelection] = useState(false);
+  const searchRef = useRef<HTMLInputElement>(null);
+  const [query, setQuery] = useState("");
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [recording, setRecording] = useState(false);
+  const [error, setError] = useState("");
+  const [trusted, setTrusted] = useState(true);
+
+  const matchedId = useMemo(() => resolveContext(context)?.id ?? null, [context]);
+
+  useEffect(() => {
+    void invoke<boolean>("accessibility_status").then(setTrusted);
+    void invoke<Settings>("get_settings").then(setSettings);
+    void invoke<string>("default_hotkey").then(setDefaultHotkey);
+    void invoke<ActiveContext>("get_active_context").then(setContext);
+
+    const unlistenContext = listen<ActiveContext>("context", (event) => {
+      setContext(event.payload);
+      setQuery("");
+      setAdding(false);
+    });
+
+    const unlistenFocus = getCurrentWindow().onFocusChanged(({ payload: focused }) => {
+      if (focused) {
+        searchRef.current?.focus();
+        searchRef.current?.select();
+      }
+    });
+
+    return () => {
+      void unlistenContext.then((off) => off());
+      void unlistenFocus.then((off) => off());
+    };
+  }, []);
+
+  useEffect(() => {
+    setActiveId(matchedId);
+  }, [matchedId]);
+
+  const pack = useMemo(
+    () => PACKS.find((item) => item.id === activeId) ?? null,
+    [activeId],
+  );
+
+  const shortcuts = useMemo(() => {
+    if (!pack) {
+      return [];
+    }
+
+    const custom = (settings?.custom?.[pack.id] ?? []).map((entry) => ({
+      id: entry.id,
+      keys: [],
+      label: entry.label,
+      category: "Custom",
+      insert: entry.insert,
+      mention: entry.mention,
+      mentionText: entry.mentionText,
+      mentionHtml: entry.mentionHtml,
+      custom: true,
+    }));
+
+    const all = [...pack.shortcuts, ...custom];
+    const needle = query.trim().toLowerCase();
+    const filtered = needle
+      ? all.filter((shortcut) =>
+          [shortcut.label, shortcut.category].join(" ").toLowerCase().includes(needle),
+        )
+      : all;
+
+    const pinned = settings?.pinned ?? [];
+    const rank = (id: string) => {
+      const index = pinned.indexOf(id);
+      return index === -1 ? Number.MAX_SAFE_INTEGER : index;
+    };
+
+    return [...filtered].sort((a, b) => rank(a.id) - rank(b.id));
+  }, [pack, query, settings]);
+
+  useEffect(() => {
+    setSelectedId((current) =>
+      current && shortcuts.some((item) => item.id === current)
+        ? current
+        : (shortcuts[0]?.id ?? null),
+    );
+  }, [shortcuts]);
+
+  const activate = useCallback(
+    async (shortcut: Shortcut) => {
+      const own = shortcut.mentionText
+        ? { text: shortcut.mentionText, html: shortcut.mentionHtml }
+        : undefined;
+      const mention = shortcut.mention ? (own ?? pack?.mention) : undefined;
+      const body = shortcut.insert ?? shortcut.keys.join(" ");
+      const text = mention ? `${mention.text} ${body}` : body;
+
+      if (mention?.html) {
+        await writeHtml(`${mention.html} ${body}`, text);
+      } else {
+        await writeText(text);
+      }
+    try {
+      await invoke("insert_snippet", {
+          mention: null,
+          mentionDelayMs: MENTION_DELAY_MS,
+        });
+      } catch {
+        setTrusted(false);
+      }
+    },
+    [pack],
+  );
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (recording) {
+        event.preventDefault();
+        if (event.key === "Escape") {
+          setRecording(false);
+          return;
+        }
+        const next = toShortcut(event);
+        if (!next) {
+          return;
+        }
+        setRecording(false);
+        invoke<Settings>("set_hotkey", { hotkey: next })
+          .then((next) => {
+            setSettings(next);
+            setError("");
+          })
+          .catch((reason) => setError(String(reason)));
+        return;
+      }
+
+      if (event.key === "Escape") {
+        void invoke("dismiss");
+        return;
+      }
+
+      if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+        event.preventDefault();
+        const step = event.key === "ArrowDown" ? 1 : -1;
+
+        const index = shortcuts.findIndex((item) => item.id === selectedId);
+        const next = shortcuts[(index + step + shortcuts.length) % shortcuts.length];
+        setFollowSelection(true);
+        setSelectedId(next?.id ?? null);
+        return;
+      }
+
+      if (event.key === "Tab") {
+        event.preventDefault();
+        const index = PACKS.findIndex((item) => item.id === activeId);
+        const step = event.shiftKey ? -1 : 1;
+        const at = index === -1 ? 0 : (index + step + PACKS.length) % PACKS.length;
+        setActiveId(PACKS[at].id);
+        return;
+      }
+
+      const digit = /^Digit([1-9])$/.exec(event.code);
+      if (digit && (event.metaKey || event.altKey)) {
+        event.preventDefault();
+        const target = shortcuts[Number(digit[1]) - 1];
+        if (target) {
+          void activate(target);
+        }
+        return;
+      }
+
+      if (event.key === "Enter") {
+        const selected = shortcuts.find((item) => item.id === selectedId);
+        if (selected) {
+          void activate(selected);
+        }
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [recording, shortcuts, selectedId, activeId, activate, settings]);
+
+  return (
+    <main className="flex h-full flex-col overflow-hidden rounded-2xl border border-hairline bg-surface font-sans text-base text-white/95 backdrop-blur-2xl">
+      <header className="flex items-center justify-between gap-3 px-5 pt-4 pb-3">
+        <div className="flex min-w-0 flex-col">
+          <span className="text-sm font-semibold tracking-tight">Pikmin Mention</span>
+          <span className="truncate text-xs text-white/35">
+            {context?.hostname ?? context?.app ?? "No app detected"}
+          </span>
+        </div>
+        <div className="flex items-center gap-1">
+          {!recording && settings?.hotkey && defaultHotkey && settings.hotkey !== defaultHotkey ? (
+            <button
+              type="button"
+              aria-label="Reset shortcut"
+              title={`Reset to ${formatHotkey(defaultHotkey)}`}
+              onClick={() => {
+                void invoke<Settings>("reset_hotkey")
+                  .then((next) => {
+                    setSettings(next);
+                    setError("");
+                  })
+                  .catch((reason) => setError(String(reason)));
+              }}
+              className="rounded-md px-1.5 py-1 text-xs text-white/35 hover:bg-white/10 hover:text-white/70"
+            >
+              ⟲
+            </button>
+          ) : null}
+          <button
+            type="button"
+            onClick={() => setRecording(true)}
+            className="rounded-md border border-hairline px-2 py-1 font-mono text-xs text-white/70 hover:bg-white/10"
+          >
+            {recording ? "Press keys…" : formatHotkey(settings?.hotkey ?? "")}
+          </button>
+        </div>
+      </header>
+
+      <PackTabs packs={PACKS} activeId={activeId} matchedId={matchedId} onSelect={setActiveId} />
+
+      <input
+        ref={searchRef}
+        autoFocus
+        value={query}
+        onChange={(event) => setQuery(event.target.value)}
+        placeholder="Search shortcuts"
+        className="border-b border-hairline bg-transparent px-5 py-2.5 text-sm text-white/90 outline-none placeholder:text-white/30"
+      />
+
+      <div className="flex-1 overflow-y-auto px-3 py-3">
+        {!pack ? (
+          <div className="flex h-full flex-col items-center justify-center gap-1 px-6 text-center">
+            <p className="text-sm text-white/45">No pack for this app.</p>
+            <p className="text-xs text-white/25">
+              {context?.app ? `${context.app} is not recognised` : "Unknown app"} — pick a tab above.
+            </p>
+          </div>
+        ) : shortcuts.length ? (
+          <ShortcutList
+            shortcuts={shortcuts}
+            selectedId={selectedId}
+            pinned={settings?.pinned ?? []}
+            followSelection={followSelection}
+            onActivate={activate}
+            onHover={(shortcut) => {
+              setFollowSelection(false);
+              setSelectedId(shortcut.id);
+            }}
+            onTogglePin={(shortcut) => {
+              void invoke<Settings>("toggle_pin", { id: shortcut.id }).then(setSettings);
+            }}
+            onReorder={(id, toIndex) => {
+              const pinned = (settings?.pinned ?? []).filter((value) => value !== id);
+              pinned.splice(Math.min(toIndex, pinned.length), 0, id);
+              void invoke<Settings>("set_pinned", { pinned }).then(setSettings);
+            }}
+            onRemove={(shortcut) => {
+              void invoke<Settings>("remove_custom", {
+                packId: pack.id,
+                id: shortcut.id,
+              }).then(setSettings);
+            }}
+          />
+        ) : (
+          <p className="py-6 text-center text-sm text-white/35">No match.</p>
+        )}
+      </div>
+
+      {pack && adding ? (
+        <CustomForm
+          packMention={pack.mention}
+          onCancel={() => setAdding(false)}
+          onSubmit={(value) => {
+            setAdding(false);
+            void invoke<Settings>("add_custom", {
+              packId: pack.id,
+              label: value.label,
+              insert: value.insert,
+              mention: value.mention,
+              mentionText: value.mentionText ?? null,
+              mentionHtml: value.mentionHtml ?? null,
+            }).then(setSettings);
+          }}
+        />
+      ) : pack ? (
+        <button
+          type="button"
+          onClick={() => setAdding(true)}
+          className="border-t border-hairline px-5 py-2 text-left text-xs text-white/40 hover:bg-white/5 hover:text-white/70"
+        >
+          + Add custom
+        </button>
+      ) : null}
+
+      {!trusted ? (
+        <div className="flex items-center justify-between gap-3 border-t border-hairline px-5 py-2.5">
+          <span className="text-xs text-white/45">
+            Copied to clipboard. Enable Accessibility to paste automatically.
+          </span>
+          <button
+            type="button"
+            onClick={() => {
+              void invoke<boolean>("request_accessibility").then(setTrusted);
+            }}
+            className="shrink-0 rounded-md border border-hairline bg-white/10 px-2.5 py-1 text-xs font-medium text-white/85 hover:bg-white/15"
+          >
+            Grant access
+          </button>
+        </div>
+      ) : null}
+
+      {error ? <p className="px-5 pb-3 text-xs text-red-400">{error}</p> : null}
+    </main>
+  );
+}
