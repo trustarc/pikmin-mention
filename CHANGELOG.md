@@ -11,7 +11,7 @@
 ## [1.0.1] - 2026-09-15
 
 - Re-check Accessibility permission each time the overlay opens, so the prompt clears once you grant it.
-- Cache Rust dependencies in CI and relax LTO, cutting release builds from roughly nine minutes to five.
+- Cache Rust dependencies in CI and relax LTO, cutting release builds from roughly nine minutes to a few.
 
 ## [1.0.0] - 2026-09-14
 
