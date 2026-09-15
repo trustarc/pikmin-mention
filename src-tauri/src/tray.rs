@@ -1,5 +1,5 @@
-use tauri::menu::{CheckMenuItem, Menu, MenuItem, PredefinedMenuItem};
 use tauri::image::Image;
+use tauri::menu::{CheckMenuItem, Menu, MenuItem, PredefinedMenuItem};
 use tauri::tray::TrayIconBuilder;
 use tauri::{AppHandle, Emitter};
 
@@ -81,5 +81,7 @@ pub fn show_update(app: &AppHandle, version: &str) {
         let _ = tray.set_icon(Some(icon));
     }
 
-    let _ = tray.set_tooltip(Some(format!("Pikmin Mention {version} is available").as_str()));
+    let _ = tray.set_tooltip(Some(
+        format!("Pikmin Mention {version} is available").as_str(),
+    ));
 }
