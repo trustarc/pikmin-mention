@@ -6,9 +6,12 @@
 
 - Update from inside the app: **Check for Updates…** in the tray downloads and installs a signed release, then restarts.
 - Show the version in the overlay header.
+- Sign macOS bundles with a stable identity so the Accessibility grant survives reinstalls.
+
+## [1.0.1] - 2026-09-15
+
 - Re-check Accessibility permission each time the overlay opens, so the prompt clears once you grant it.
-- Sign macOS bundles with a stable identity so the permission grant survives reinstalls.
-- Cache Rust dependencies in CI and relax LTO, cutting release builds from roughly nine minutes to a few.
+- Cache Rust dependencies in CI and relax LTO, cutting release builds from roughly nine minutes to five.
 
 ## [1.0.0] - 2026-09-14
 
