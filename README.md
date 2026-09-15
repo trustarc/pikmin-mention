@@ -11,10 +11,14 @@ Download your platform's build from [Releases](https://github.com/trustarc/pikmi
 ### macOS
 
 1. Open the `.dmg` and drag the app into Applications
-2. Run this once — the build is unsigned, so macOS blocks it otherwise:
+2. Run this once — builds are unsigned:
 
    ```sh
    xattr -dr com.apple.quarantine "/Applications/Pikmin Mention.app"
+   codesign --force --deep --sign - \
+     --identifier com.trustarc.pikmin-mention \
+     -r='designated => identifier "com.trustarc.pikmin-mention"' \
+     "/Applications/Pikmin Mention.app"
    ```
 
 3. Open the app and allow Accessibility when asked
