@@ -1,6 +1,6 @@
 [package]
 name = "pikmin-mention"
-version = "1.0.5"
+version = "1.0.6"
 description = "Context-aware mention and snippet inserter"
 authors = ["TrustArc"]
 edition = "2021"
@@ -14,6 +14,7 @@ tauri-build = { version = "2", features = [] }
 
 [dependencies]
 tauri = { version = "2", features = ["tray-icon", "macos-private-api"] }
+tauri-plugin-autostart = "2"
 tauri-plugin-clipboard-manager = "2"
 tauri-plugin-global-shortcut = "2"
 tauri-plugin-opener = "2"
