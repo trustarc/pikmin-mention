@@ -1,38 +1,50 @@
-# Pikmin Shortcut
+# Pikmin Mention
 
-Context-aware keyboard shortcut cheat sheet for macOS and Windows.
+Press one hotkey and drop a correctly-formatted mention into whatever app you are in.
 
-Press one hotkey and see the shortcuts for whatever app or site you are currently in — Jira in Chrome shows Jira shortcuts, Slack shows Slack shortcuts, no manual switching.
+Jira, Slack and GitHub each encode mentions differently, so typing one by hand does not produce a real mention. This app detects where you are and puts the right payload on the clipboard.
 
-## Requirements
+## Install
 
-Toolchain versions are pinned in `mise.toml`:
+Download your platform's build from [Releases](https://github.com/trustarc/pikmin-mention/releases).
 
-```sh
-mise install
-```
+On macOS, right-click the app the first time and choose **Open** (unsigned), then allow Accessibility.
 
-This provides Bun and Rust. Node is not required — `bunfig.toml` sets `[run] bun = true`, so every script runs on the Bun runtime.
+There is no Dock icon — it lives in the menu bar or tray.
+
+## Usage
+
+`Mod` is `Cmd` on macOS and `Ctrl` elsewhere.
+
+|                 |                    |
+| --------------- | ------------------ |
+| `Mod+Shift+.`   | Open or close      |
+| type            | Filter             |
+| `↑` `↓` `Enter` | Select and insert  |
+| `Mod+1`–`Mod+9` | Insert by position |
+| `Tab`           | Switch pack        |
+| drag            | Reorder            |
+
+The pack matching your current app or site is selected automatically. Add your own entries with **Add custom**, including any mention captured from the clipboard.
 
 ## Development
 
 ```sh
+mise install
 bun install
-mise start
+mise start      # run
+mise check      # typecheck, format, test, clippy
+mise build      # bundle
 ```
 
-## Build
+## Releases
+
+Bump `version` in `src-tauri/Cargo.toml`, then push a matching tag. CI builds all three platforms and publishes the release.
 
 ```sh
-mise build
-```
-
-## Checks
-
-```sh
-mise check
+git tag v1.0.1 && git push origin v1.0.1
 ```
 
 ## Privacy
 
-The app reads the foreground application and, for supported browsers, the active tab URL. The URL is reduced to a hostname immediately and the full URL is discarded. Nothing is uploaded, no account is required, and custom shortcuts never leave the machine.
+Browser URLs are reduced to a hostname on read and never stored. Custom entries stay on your machine.

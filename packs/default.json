@@ -1,0 +1,9 @@
+{
+  "id": "default",
+  "name": "Default",
+  "match": {
+    "domains": [],
+    "apps": []
+  },
+  "snippets": []
+}

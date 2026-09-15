@@ -1,0 +1,6 @@
+.prettierrc
+bun.lock
+*.json
+dist
+src-tauri/target
+src-tauri/gen
