@@ -10,7 +10,11 @@
       "Slack"
     ]
   },
-  "shortcuts": [
+  "mention": {
+    "text": "@Pikmin",
+    "html": "<a href=\"https://trustarc.slack.com/team/U0AKL9KV3CP\">@Pikmin</a>"
+  },
+  "snippets": [
     {
       "id": "pikmin-gpt-5.6-sol-low",
       "keys": [],
@@ -171,9 +175,5 @@
       "mention": true,
       "insert": "--model fable --effort max"
     }
-  ],
-  "mention": {
-    "text": "@Pikmin",
-    "html": "<a href=\"https://trustarc.slack.com/team/U0AKL9KV3CP\">@Pikmin</a>"
-  }
+  ]
 }

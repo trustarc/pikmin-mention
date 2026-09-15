@@ -19,7 +19,7 @@ pub fn frontmost_app() -> Option<Frontmost> {
     })
 }
 
-pub fn activate_app(bundle_id: &str) {
+pub fn activate_app(bundle_id: &str, _pid: i32) {
     if bundle_id.is_empty() {
         return;
     }

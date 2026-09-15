@@ -1,9 +1,9 @@
-import type { Shortcut } from '@/types';
+import type { Snippet } from '@/types';
 import { Star, X } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 
 type Props = {
-  shortcut: Shortcut;
+  snippet: Snippet;
   index: number;
   selected: boolean;
   pinned: boolean;
@@ -21,8 +21,8 @@ type Props = {
   onDragEnd: () => void;
 };
 
-export default function ShortcutRow({
-  shortcut,
+export default function SnippetRow({
+  snippet,
   selected,
   pinned,
   accelerator,
@@ -83,7 +83,7 @@ export default function ShortcutRow({
       </button>
 
       <span className="flex-1 truncate text-sm text-white/80">
-        {shortcut.label}
+        {snippet.label}
       </span>
 
       {accelerator ? (
@@ -92,7 +92,7 @@ export default function ShortcutRow({
         </kbd>
       ) : null}
 
-      {shortcut.custom ? (
+      {snippet.custom ? (
         <button
           type="button"
           aria-label="Delete"

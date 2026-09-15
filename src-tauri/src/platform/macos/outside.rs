@@ -18,7 +18,7 @@ pub fn screen_click_point() -> Option<(f64, f64)> {
 
 pub fn watch_outside_clicks<F>(on_click: F)
 where
-    F: Fn() + 'static,
+    F: Fn() + Send + Sync + 'static,
 {
     let handler = RcBlock::new(move |_event: NonNull<NSEvent>| {
         on_click();

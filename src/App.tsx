@@ -1,12 +1,12 @@
 import CustomForm from '@/components/CustomForm';
 import PackTabs from '@/components/PackTabs';
-import ShortcutList from '@/components/ShortcutList';
+import SnippetList from '@/components/SnippetList';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { resolveContext } from '@/context/resolveContext';
 import { formatHotkey, toShortcut } from '@/hotkey';
 import { PACKS } from '@/packs/packLoader';
-import type { ActiveContext, Settings, Shortcut } from '@/types';
+import type { ActiveContext, Settings, Snippet } from '@/types';
 import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 import { getCurrentWindow } from '@tauri-apps/api/window';
@@ -70,7 +70,7 @@ export default function App() {
     [activeId],
   );
 
-  const shortcuts = useMemo(() => {
+  const snippets = useMemo(() => {
     if (!pack) {
       return [];
     }
@@ -87,11 +87,11 @@ export default function App() {
       custom: true,
     }));
 
-    const all = [...pack.shortcuts, ...custom];
+    const all = [...pack.snippets, ...custom];
     const needle = query.trim().toLowerCase();
     const filtered = needle
-      ? all.filter((shortcut) =>
-          [shortcut.label, shortcut.category]
+      ? all.filter((snippet) =>
+          [snippet.label, snippet.category]
             .join(' ')
             .toLowerCase()
             .includes(needle),
@@ -108,27 +108,27 @@ export default function App() {
   }, [pack, query, settings]);
 
   const selectedId = useMemo(() => {
-    if (pendingId && shortcuts.some((item) => item.id === pendingId)) {
+    if (pendingId && snippets.some((item) => item.id === pendingId)) {
       return pendingId;
     }
 
     const preferred = pack ? settings?.lastUsed?.[pack.id] : undefined;
-    if (preferred && shortcuts.some((item) => item.id === preferred)) {
+    if (preferred && snippets.some((item) => item.id === preferred)) {
       return preferred;
     }
 
-    return shortcuts[0]?.id ?? null;
-  }, [pendingId, shortcuts, pack, settings]);
+    return snippets[0]?.id ?? null;
+  }, [pendingId, snippets, pack, settings]);
 
   const activate = useCallback(
-    async (shortcut: Shortcut) => {
+    async (snippet: Snippet) => {
       await getCurrentWindow().hide();
 
-      const own = shortcut.mentionText
-        ? { text: shortcut.mentionText, html: shortcut.mentionHtml }
+      const own = snippet.mentionText
+        ? { text: snippet.mentionText, html: snippet.mentionHtml }
         : undefined;
-      const mention = shortcut.mention ? (own ?? pack?.mention) : undefined;
-      const body = shortcut.insert ?? shortcut.keys.join(' ');
+      const mention = snippet.mention ? (own ?? pack?.mention) : undefined;
+      const body = snippet.insert ?? snippet.keys.join(' ');
       const text = mention ? `${mention.text} ${body}` : body;
 
       try {
@@ -144,7 +144,7 @@ export default function App() {
       if (pack) {
         void invoke<Settings>('set_last_used', {
           packId: pack.id,
-          id: shortcut.id,
+          id: snippet.id,
         })
           .then(setSettings)
           .catch(() => undefined);
@@ -195,9 +195,9 @@ export default function App() {
         event.preventDefault();
         const step = event.key === 'ArrowDown' ? 1 : -1;
 
-        const index = shortcuts.findIndex((item) => item.id === selectedId);
+        const index = snippets.findIndex((item) => item.id === selectedId);
         const next =
-          shortcuts[(index + step + shortcuts.length) % shortcuts.length];
+          snippets[(index + step + snippets.length) % snippets.length];
         setFollowSelection(true);
         setPendingId(next?.id ?? null);
         return;
@@ -216,7 +216,7 @@ export default function App() {
       const digit = /^Digit([1-9])$/.exec(event.code);
       if (digit && (event.metaKey || event.altKey)) {
         event.preventDefault();
-        const target = shortcuts[Number(digit[1]) - 1];
+        const target = snippets[Number(digit[1]) - 1];
         if (target) {
           void activate(target);
         }
@@ -225,7 +225,7 @@ export default function App() {
 
       if (event.key === 'Enter') {
         event.preventDefault();
-        const selected = shortcuts.find((item) => item.id === selectedId);
+        const selected = snippets.find((item) => item.id === selectedId);
         if (selected) {
           void activate(selected).catch((reason) => setError(String(reason)));
         }
@@ -234,7 +234,7 @@ export default function App() {
 
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [recording, shortcuts, selectedId, activeId, activate]);
+  }, [recording, snippets, selectedId, activeId, activate]);
 
   return (
     <main className="border-hairline bg-surface flex h-full flex-col overflow-hidden rounded-2xl border font-sans text-base text-white/95 backdrop-blur-2xl">
@@ -255,7 +255,7 @@ export default function App() {
             <Button
               variant="ghost"
               size="icon"
-              aria-label="Reset shortcut"
+              aria-label="Reset snippet"
               title={`Reset to ${formatHotkey(defaultHotkey)}`}
               onClick={() => {
                 void invoke<Settings>('reset_hotkey')
@@ -308,16 +308,16 @@ export default function App() {
               — pick a tab above.
             </p>
           </div>
-        ) : shortcuts.length ? (
-          <ShortcutList
-            shortcuts={shortcuts}
+        ) : snippets.length ? (
+          <SnippetList
+            snippets={snippets}
             selectedId={selectedId}
             pinned={settings?.pinned ?? []}
             followSelection={followSelection}
             onActivate={activate}
             onHover={() => undefined}
-            onTogglePin={(shortcut) => {
-              void invoke<Settings>('toggle_pin', { id: shortcut.id }).then(
+            onTogglePin={(snippet) => {
+              void invoke<Settings>('toggle_pin', { id: snippet.id }).then(
                 setSettings,
               );
             }}
@@ -328,10 +328,10 @@ export default function App() {
               pinned.splice(Math.min(toIndex, pinned.length), 0, id);
               void invoke<Settings>('set_pinned', { pinned }).then(setSettings);
             }}
-            onRemove={(shortcut) => {
+            onRemove={(snippet) => {
               void invoke<Settings>('remove_custom', {
                 packId: pack.id,
-                id: shortcut.id,
+                id: snippet.id,
               }).then(setSettings);
             }}
           />

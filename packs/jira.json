@@ -8,7 +8,11 @@
     ],
     "apps": []
   },
-  "shortcuts": [
+  "mention": {
+    "text": "@Pikmin",
+    "html": "<span data-mention-id=\"712020:ed0d94ea-68fe-44e2-a3ed-b9445eb61bd6\" data-access-level=\"\"><span data-mention-type=\"2\">@Pikmin</span></span>"
+  },
+  "snippets": [
     {
       "id": "pikmin-gpt-5.6-sol-low",
       "keys": [],
@@ -169,9 +173,5 @@
       "mention": true,
       "insert": "--model fable --effort max"
     }
-  ],
-  "mention": {
-    "text": "@Pikmin",
-    "html": "<span data-mention-id=\"712020:ed0d94ea-68fe-44e2-a3ed-b9445eb61bd6\" data-access-level=\"\"><span data-mention-type=\"2\">@Pikmin</span></span>"
-  }
+  ]
 }

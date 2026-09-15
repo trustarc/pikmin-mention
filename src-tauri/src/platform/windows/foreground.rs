@@ -1,0 +1,101 @@
+use windows::Win32::Foundation::{CloseHandle, HWND, LPARAM, MAX_PATH};
+use windows::Win32::System::Threading::{
+    OpenProcess, QueryFullProcessImageNameW, PROCESS_NAME_FORMAT, PROCESS_QUERY_LIMITED_INFORMATION,
+};
+use windows::Win32::UI::WindowsAndMessaging::{
+    EnumWindows, GetForegroundWindow, GetWindowThreadProcessId, IsWindowVisible,
+    SetForegroundWindow,
+};
+
+use crate::platform::types::Frontmost;
+
+fn process_path(pid: u32) -> Option<String> {
+    let handle = unsafe { OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, false, pid) }.ok()?;
+
+    let mut buffer = [0u16; MAX_PATH as usize];
+    let mut length = buffer.len() as u32;
+
+    let result = unsafe {
+        QueryFullProcessImageNameW(
+            handle,
+            PROCESS_NAME_FORMAT(0),
+            windows::core::PWSTR(buffer.as_mut_ptr()),
+            &mut length,
+        )
+    };
+
+    let _ = unsafe { CloseHandle(handle) };
+    result.ok()?;
+
+    Some(String::from_utf16_lossy(&buffer[..length as usize]))
+}
+
+fn display_name(path: &str) -> String {
+    path.rsplit(['\\', '/'])
+        .next()
+        .unwrap_or(path)
+        .trim_end_matches(".exe")
+        .to_string()
+}
+
+pub fn frontmost_app() -> Option<Frontmost> {
+    let window = unsafe { GetForegroundWindow() };
+    if window.is_invalid() {
+        return None;
+    }
+
+    let mut pid = 0u32;
+    unsafe { GetWindowThreadProcessId(window, Some(&mut pid)) };
+    if pid == 0 {
+        return None;
+    }
+
+    let path = process_path(pid)?;
+
+    Some(Frontmost {
+        name: display_name(&path),
+        bundle_id: path,
+        pid: pid as i32,
+    })
+}
+
+struct Search {
+    pid: u32,
+    found: HWND,
+}
+
+unsafe extern "system" fn find_window(window: HWND, param: LPARAM) -> windows::core::BOOL {
+    let search = unsafe { &mut *(param.0 as *mut Search) };
+
+    let mut pid = 0u32;
+    unsafe { GetWindowThreadProcessId(window, Some(&mut pid)) };
+
+    if pid == search.pid && unsafe { IsWindowVisible(window) }.as_bool() {
+        search.found = window;
+        return false.into();
+    }
+
+    true.into()
+}
+
+pub fn activate_app(_bundle_id: &str, pid: i32) {
+    if pid <= 0 {
+        return;
+    }
+
+    let mut search = Search {
+        pid: pid as u32,
+        found: HWND::default(),
+    };
+
+    let _ = unsafe {
+        EnumWindows(
+            Some(find_window),
+            LPARAM(&mut search as *mut Search as isize),
+        )
+    };
+
+    if !search.found.is_invalid() {
+        let _ = unsafe { SetForegroundWindow(search.found) };
+    }
+}

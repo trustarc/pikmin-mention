@@ -14,7 +14,7 @@ pub fn browser_url_via_a11y(_pid: i32) -> Option<String> {
     None
 }
 
-pub fn activate_app(_bundle_id: &str) {}
+pub fn activate_app(_bundle_id: &str, _pid: i32) {}
 
 pub fn accessibility_trusted() -> bool {
     true
@@ -34,7 +34,7 @@ pub fn read_clipboard() -> Option<Clipboard> {
     None
 }
 
-pub fn watch_outside_clicks<F: Fn() + 'static>(_on_click: F) {}
+pub fn watch_outside_clicks<F: Fn() + Send + Sync + 'static>(_on_click: F) {}
 
 pub fn screen_click_point() -> Option<(f64, f64)> {
     None

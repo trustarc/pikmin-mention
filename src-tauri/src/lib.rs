@@ -10,15 +10,12 @@ use tauri::AppHandle;
 use context::{ActiveContext, ContextState};
 use settings::Settings;
 
-fn hide_then(app: &AppHandle, bundle_id: String, after: Option<u64>) {
+fn hide_then(app: &AppHandle, previous: (String, i32), after: Option<u64>) {
     let handle = app.clone();
 
     let _ = app.run_on_main_thread(move || {
-        let hidden = overlay::hide(&handle);
-        let visible = overlay::get(&handle).and_then(|w| w.is_visible().ok());
-        eprintln!("[overlay] hide -> {hidden:?}, visible = {visible:?}, prev = {bundle_id:?}");
-
-        platform::activate_app(&bundle_id);
+        let _ = overlay::hide(&handle);
+        platform::activate_app(&previous.0, previous.1);
 
         let Some(delay) = after else {
             return;
@@ -33,11 +30,11 @@ fn hide_then(app: &AppHandle, bundle_id: String, after: Option<u64>) {
     });
 }
 
-fn previous_app(state: &tauri::State<'_, ContextState>) -> String {
+fn previous_app(state: &tauri::State<'_, ContextState>) -> (String, i32) {
     state
         .0
         .lock()
-        .map(|current| current.bundle_id.clone())
+        .map(|current| (current.bundle_id.clone(), current.pid))
         .unwrap_or_default()
 }
 
@@ -160,7 +157,7 @@ fn add_custom(
         .custom
         .entry(pack_id)
         .or_default()
-        .push(settings::CustomShortcut {
+        .push(settings::CustomSnippet {
             id,
             label,
             insert,

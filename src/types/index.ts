@@ -3,7 +3,7 @@ export type Mention = {
   html?: string;
 };
 
-export type Shortcut = {
+export type Snippet = {
   id: string;
   keys: string[];
   label: string;
@@ -21,7 +21,7 @@ export type Pack = {
   version: number;
   match: { domains: string[]; apps: string[] };
   mention?: Mention;
-  shortcuts: Shortcut[];
+  snippets: Snippet[];
 };
 
 export type ActiveContext = {
@@ -31,7 +31,7 @@ export type ActiveContext = {
   hostname: string | null;
 };
 
-export type CustomShortcut = {
+export type CustomSnippet = {
   id: string;
   label: string;
   insert: string;
@@ -43,6 +43,6 @@ export type CustomShortcut = {
 export type Settings = {
   hotkey: string;
   pinned: string[];
-  custom: Record<string, CustomShortcut[]>;
+  custom: Record<string, CustomSnippet[]>;
   lastUsed: Record<string, string>;
 };

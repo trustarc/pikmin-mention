@@ -1,21 +1,21 @@
-import ShortcutRow from '@/components/ShortcutRow';
-import type { Shortcut } from '@/types';
+import SnippetRow from '@/components/SnippetRow';
+import type { Snippet } from '@/types';
 import { useState } from 'react';
 
 type Props = {
-  shortcuts: Shortcut[];
+  snippets: Snippet[];
   selectedId: string | null;
   pinned: string[];
   followSelection: boolean;
-  onActivate: (shortcut: Shortcut) => void;
-  onHover: (shortcut: Shortcut) => void;
-  onTogglePin: (shortcut: Shortcut) => void;
-  onRemove: (shortcut: Shortcut) => void;
+  onActivate: (snippet: Snippet) => void;
+  onHover: (snippet: Snippet) => void;
+  onTogglePin: (snippet: Snippet) => void;
+  onRemove: (snippet: Snippet) => void;
   onReorder: (id: string, toIndex: number) => void;
 };
 
-export default function ShortcutList({
-  shortcuts,
+export default function SnippetList({
+  snippets,
   selectedId,
   pinned,
   followSelection,
@@ -30,29 +30,29 @@ export default function ShortcutList({
 
   return (
     <ul className="flex flex-col">
-      {shortcuts.map((shortcut, index) => (
-        <ShortcutRow
-          key={shortcut.id}
-          shortcut={shortcut}
+      {snippets.map((snippet, index) => (
+        <SnippetRow
+          key={snippet.id}
+          snippet={snippet}
           index={index}
-          selected={shortcut.id === selectedId}
-          pinned={pinned.includes(shortcut.id)}
+          selected={snippet.id === selectedId}
+          pinned={pinned.includes(snippet.id)}
           accelerator={index < 9 ? index + 1 : null}
           followSelection={followSelection}
-          dragging={draggingId === shortcut.id}
+          dragging={draggingId === snippet.id}
           dropTarget={
             draggingId !== null &&
             overIndex === index &&
-            draggingId !== shortcut.id
+            draggingId !== snippet.id
           }
-          onActivate={() => onActivate(shortcut)}
-          onHover={() => onHover(shortcut)}
-          onTogglePin={() => onTogglePin(shortcut)}
-          onRemove={() => onRemove(shortcut)}
-          onDragStart={() => setDraggingId(shortcut.id)}
+          onActivate={() => onActivate(snippet)}
+          onHover={() => onHover(snippet)}
+          onTogglePin={() => onTogglePin(snippet)}
+          onRemove={() => onRemove(snippet)}
+          onDragStart={() => setDraggingId(snippet.id)}
           onDragOver={() => setOverIndex(index)}
           onDrop={() => {
-            if (draggingId && draggingId !== shortcut.id) {
+            if (draggingId && draggingId !== snippet.id) {
               onReorder(draggingId, index);
             }
             setDraggingId(null);

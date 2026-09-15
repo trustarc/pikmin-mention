@@ -9,7 +9,7 @@ use crate::hotkey;
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
-pub struct CustomShortcut {
+pub struct CustomSnippet {
     pub id: String,
     pub label: String,
     pub insert: String,
@@ -26,7 +26,7 @@ pub struct CustomShortcut {
 pub struct Settings {
     pub hotkey: String,
     pub pinned: Vec<String>,
-    pub custom: HashMap<String, Vec<CustomShortcut>>,
+    pub custom: HashMap<String, Vec<CustomSnippet>>,
     pub last_used: HashMap<String, String>,
 }
 

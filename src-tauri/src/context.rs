@@ -11,6 +11,7 @@ use crate::platform;
 pub struct ActiveContext {
     pub app: String,
     pub bundle_id: String,
+    pub pid: i32,
     pub browser: Option<String>,
     pub hostname: Option<String>,
 }
@@ -18,12 +19,23 @@ pub struct ActiveContext {
 #[derive(Default)]
 pub struct ContextState(pub Mutex<ActiveContext>);
 
-fn browser_id(bundle_id: &str) -> Option<&'static str> {
-    match bundle_id {
-        "com.google.Chrome" => Some("chrome"),
-        "com.microsoft.edgemac" => Some("edge"),
-        "com.apple.Safari" => Some("safari"),
-        "org.mozilla.firefox" | "org.mozilla.firefoxdeveloperedition" => Some("firefox"),
+fn browser_id(identity: &str) -> Option<&'static str> {
+    let lower = identity.to_lowercase();
+
+    match lower.as_str() {
+        "com.google.chrome" => return Some("chrome"),
+        "com.microsoft.edgemac" => return Some("edge"),
+        "com.apple.safari" => return Some("safari"),
+        "org.mozilla.firefox" | "org.mozilla.firefoxdeveloperedition" => return Some("firefox"),
+        _ => {}
+    }
+
+    let executable = lower.rsplit(['\\', '/']).next().unwrap_or(&lower);
+
+    match executable {
+        "chrome.exe" | "chrome" => Some("chrome"),
+        "msedge.exe" | "msedge" => Some("edge"),
+        "firefox.exe" | "firefox" => Some("firefox"),
         _ => None,
     }
 }
@@ -46,13 +58,15 @@ pub fn capture() -> ActiveContext {
     let browser = browser_id(&front.bundle_id);
     let url = match browser {
         Some("firefox") => platform::browser_url_via_a11y(front.pid),
-        Some(_) => platform::active_url(&front.bundle_id),
+        Some(_) => platform::active_url(&front.bundle_id)
+            .or_else(|| platform::browser_url_via_a11y(front.pid)),
         None => None,
     };
 
     ActiveContext {
         app: front.name,
         bundle_id: front.bundle_id,
+        pid: front.pid,
         browser: browser.map(str::to_string),
         hostname: url.as_deref().and_then(hostname_of),
     }

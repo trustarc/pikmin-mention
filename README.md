@@ -6,6 +6,35 @@ Jira, Slack and GitHub each encode mentions differently — a Jira mention is an
 
 Ships with packs for invoking [Pikmin](https://github.com/trustarc/pikmin), and you can capture any other mention straight from your clipboard.
 
+## Install
+
+1. Download your platform's build from [Releases](https://github.com/trustarc/pikmin-mention/releases)
+2. Install it — drag into `/Applications` on macOS, run the installer on Windows, make the AppImage executable on Linux
+3. On macOS, right-click the app and choose **Open** the first time (unsigned build)
+4. Allow Accessibility when asked (macOS only)
+
+No Dock icon — look for it in the menu bar or tray. Press `Cmd+Shift+.` to open
+(`Ctrl+Shift+.` on Windows and Linux).
+
+Browser detection needs X11 on Linux; Wayland does not expose the focused window.
+
+## Usage
+
+|                 |                             |
+| --------------- | --------------------------- |
+| `Cmd+Shift+.`   | Open or close the overlay   |
+| type            | Filter                      |
+| `↑` `↓`         | Move                        |
+| `Enter`         | Insert the selected snippet |
+| `Cmd+1`–`Cmd+9` | Insert by position          |
+| `Tab`           | Switch pack                 |
+| drag            | Reorder (pins it)           |
+| `Esc`           | Close                       |
+
+The pack matching your current app or site is selected automatically and marked
+with a dot. `Default` is used when nothing matches. Add your own entries with
+**Add custom** — including any mention captured from the clipboard.
+
 ## Releases
 
 See [CHANGELOG.md](CHANGELOG.md). The version lives in `src-tauri/Cargo.toml` only —
@@ -40,10 +69,6 @@ mise build
 ```sh
 mise check
 ```
-
-## Permissions
-
-macOS Accessibility permission is needed to paste automatically and to read the address bar in Firefox. Without it the snippet still reaches the clipboard and you paste with `Cmd+V`.
 
 ## Privacy
 

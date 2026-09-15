@@ -2,6 +2,9 @@
   "id": "default",
   "name": "Default",
   "version": 1,
-  "match": { "domains": [], "apps": [] },
-  "shortcuts": []
+  "match": {
+    "domains": [],
+    "apps": []
+  },
+  "snippets": []
 }

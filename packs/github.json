@@ -8,7 +8,10 @@
     ],
     "apps": []
   },
-  "shortcuts": [
+  "mention": {
+    "text": "@pikmin-trustarc"
+  },
+  "snippets": [
     {
       "id": "pikmin-gpt-5.6-sol-low",
       "keys": [],
@@ -169,8 +172,5 @@
       "mention": true,
       "insert": "--model fable --effort max"
     }
-  ],
-  "mention": {
-    "text": "@pikmin-trustarc"
-  }
+  ]
 }
