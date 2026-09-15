@@ -76,6 +76,9 @@ export default function App() {
 
     const unlistenContext = listen<ActiveContext>('context', (event) => {
       setContext(event.payload);
+      // Return to the matched pack on every opening, even when it is the
+      // same as last time, so a tab picked by hand does not stick around.
+      setActiveId(resolveContext(event.payload)?.id ?? null);
       setQuery('');
       setAdding(false);
       setUpdate('');
@@ -333,7 +336,12 @@ export default function App() {
         packs={PACKS}
         activeId={activeId}
         matchedId={matchedId}
-        onSelect={setActiveId}
+        onSelect={(id) => {
+          setActiveId(id);
+          // Clicking a tab focuses it; give the search box focus back so
+          // typing keeps filtering.
+          requestAnimationFrame(() => searchRef.current?.focus());
+        }}
       />
 
       <Input

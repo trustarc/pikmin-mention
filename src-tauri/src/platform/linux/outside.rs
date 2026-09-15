@@ -5,6 +5,10 @@ use x11rb::protocol::xproto::ConnectionExt;
 
 use super::conn::open;
 
+/// X11 reports the pointer in device pixels, the same space as the window
+/// geometry, so no scaling applies when comparing them.
+pub const CURSOR_IS_PHYSICAL: bool = true;
+
 pub fn screen_click_point() -> Option<(f64, f64)> {
     let display = open()?;
     let pointer = display
