@@ -62,7 +62,8 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: src-tauri
-          key: ${{ matrix.target }}
+          shared-key: release-${{ matrix.target }}
+          cache-on-failure: true
 
       - run: bun install --frozen-lockfile
 
