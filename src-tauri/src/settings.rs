@@ -28,6 +28,7 @@ pub struct Settings {
     pub pinned: Vec<String>,
     pub custom: HashMap<String, Vec<CustomSnippet>>,
     pub last_used: HashMap<String, String>,
+    pub autostart_asked: bool,
 }
 
 impl Default for Settings {
@@ -37,6 +38,7 @@ impl Default for Settings {
             pinned: Vec::new(),
             custom: HashMap::new(),
             last_used: HashMap::new(),
+            autostart_asked: false,
         }
     }
 }

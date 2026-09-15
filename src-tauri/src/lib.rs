@@ -216,6 +216,22 @@ fn set_hotkey(app: AppHandle, hotkey: String) -> Result<Settings, String> {
     Ok(next)
 }
 
+fn enable_autostart_once(app: &AppHandle) {
+    use tauri_plugin_autostart::ManagerExt;
+
+    let mut stored = settings::load(app);
+    if stored.autostart_asked {
+        return;
+    }
+
+    if let Err(error) = app.autolaunch().enable() {
+        eprintln!("could not enable launch at login: {error}");
+    }
+
+    stored.autostart_asked = true;
+    let _ = settings::save(app, &stored);
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -251,6 +267,7 @@ pub fn run() {
             #[cfg(target_os = "macos")]
             app.set_activation_policy(tauri::ActivationPolicy::Accessory);
 
+            enable_autostart_once(app.handle());
             tray::init(app.handle())?;
 
             let handle = app.handle().clone();
