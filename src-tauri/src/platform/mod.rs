@@ -1,3 +1,4 @@
+mod address;
 #[cfg_attr(not(target_os = "windows"), allow(dead_code))]
 mod cfhtml;
 mod types;
