@@ -15,10 +15,6 @@ Download your platform's build from [Releases](https://github.com/trustarc/pikmi
 
    ```sh
    xattr -dr com.apple.quarantine "/Applications/Pikmin Mention.app"
-   codesign --force --deep --sign - \
-     --identifier com.trustarc.pikmin-mention \
-     -r='designated => identifier "com.trustarc.pikmin-mention"' \
-     "/Applications/Pikmin Mention.app"
    ```
 
 3. Open the app and allow Accessibility when asked

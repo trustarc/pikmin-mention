@@ -57,6 +57,11 @@ fn insert_snippet(app: AppHandle, state: tauri::State<'_, ContextState>) -> Resu
 }
 
 #[tauri::command]
+fn update_available(app: AppHandle, version: String) {
+    tray::show_update(&app, &version);
+}
+
+#[tauri::command]
 fn accessibility_status() -> bool {
     platform::accessibility_trusted()
 }
@@ -226,6 +231,7 @@ fn enable_autostart_once(app: &AppHandle) {
 
     if let Err(error) = app.autolaunch().enable() {
         eprintln!("could not enable launch at login: {error}");
+        return;
     }
 
     stored.autostart_asked = true;
@@ -261,6 +267,7 @@ pub fn run() {
             set_hotkey,
             set_last_used,
             set_pinned,
+            update_available,
             toggle_pin
         ])
         .setup(|app| {

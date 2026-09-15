@@ -4,7 +4,8 @@
 
 ## [1.0.7] - 2026-09-15
 
-- Document re-signing the app on install, which keeps the Accessibility grant across updates.
+- Mark the tray icon with a dot when an update is available, checked once at startup.
+- Retry enabling Launch at Login if the first attempt fails, instead of marking it done.
 
 ## [1.0.6] - 2026-09-15
 
