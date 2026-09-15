@@ -98,7 +98,7 @@ fn search(element: AXUIElementRef, depth: usize, budget: &mut usize) -> Option<S
         text
     });
 
-    if role.as_deref() == Some("AXTextField") {
+    if matches!(role.as_deref(), Some("AXTextField") | Some("AXComboBox")) {
         if let Some(value) = attribute(element, "AXValue") {
             let text = to_string(value);
             unsafe { CFRelease(value) };
