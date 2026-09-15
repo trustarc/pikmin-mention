@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [1.0.8] - 2026-09-15
+
+- Share the CI dependency cache across versions. The key included the manifest hash, so every release missed the cache it had just written.
+
 ## [1.0.7] - 2026-09-15
 
 - Mark the tray icon with a dot when an update is available, checked once at startup.
