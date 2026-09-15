@@ -7,6 +7,7 @@ import { resolveContext } from '@/context/resolveContext';
 import { formatHotkey, toShortcut } from '@/hotkey';
 import { PACKS } from '@/packs/packLoader';
 import type { ActiveContext, Settings, Snippet } from '@/types';
+import { getVersion } from '@tauri-apps/api/app';
 import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 import { getCurrentWindow } from '@tauri-apps/api/window';
@@ -24,6 +25,7 @@ export default function App() {
   const [defaultHotkey, setDefaultHotkey] = useState('');
   const [mac, setMac] = useState(true);
   const [update, setUpdate] = useState('');
+  const [version, setVersion] = useState('');
   const [followSelection, setFollowSelection] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState('');
@@ -42,6 +44,7 @@ export default function App() {
     void invoke<Settings>('get_settings').then(setSettings);
     void invoke<string>('default_hotkey').then(setDefaultHotkey);
     void invoke<boolean>('is_macos').then(setMac);
+    void getVersion().then(setVersion);
     void invoke<ActiveContext>('get_active_context').then(setContext);
 
     const unlistenUpdate = listen('check-update', () => {
@@ -273,8 +276,9 @@ export default function App() {
     <main className="border-hairline bg-surface flex h-full flex-col overflow-hidden rounded-2xl border font-sans text-base text-white/95 backdrop-blur-2xl">
       <header className="flex items-center justify-between gap-3 px-5 pt-4 pb-3">
         <div className="flex min-w-0 flex-col">
-          <span className="text-sm font-semibold tracking-tight">
+          <span className="flex items-baseline gap-1.5 text-sm font-semibold tracking-tight">
             Pikmin Mention
+            <span className="font-normal text-white/25">{version}</span>
           </span>
           <span className="truncate text-xs text-white/35">
             {context?.hostname ?? context?.app ?? 'No app detected'}
