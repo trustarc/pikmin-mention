@@ -3,6 +3,8 @@ use std::ptr;
 
 use objc2_core_foundation::{CFRetained, CFString};
 
+use crate::platform::address::looks_like_url;
+
 type AXUIElementRef = *const c_void;
 type CFTypeRef = *const c_void;
 
@@ -74,16 +76,6 @@ fn to_string(value: CFTypeRef) -> Option<String> {
 
     let end = buffer.iter().position(|byte| *byte == 0).unwrap_or(0);
     String::from_utf8(buffer[..end].to_vec()).ok()
-}
-
-fn looks_like_url(value: &str) -> bool {
-    let trimmed = value.trim();
-    if trimmed.is_empty() || trimmed.contains(' ') {
-        return false;
-    }
-    trimmed.starts_with("http://")
-        || trimmed.starts_with("https://")
-        || (trimmed.contains('.') && !trimmed.contains('@'))
 }
 
 fn search(element: AXUIElementRef, depth: usize, budget: &mut usize) -> Option<String> {

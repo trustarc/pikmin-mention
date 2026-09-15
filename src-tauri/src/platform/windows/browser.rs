@@ -14,11 +14,7 @@ use windows::Win32::UI::WindowsAndMessaging::{
 };
 
 use super::foreground::remembered_window;
-
-fn looks_like_url(value: &str) -> bool {
-    let trimmed = value.trim();
-    !trimmed.is_empty() && !trimmed.contains(' ') && trimmed.contains('.')
-}
+use crate::platform::address::looks_like_url;
 
 fn address_bar(automation: &IUIAutomation, window: HWND) -> Option<String> {
     unsafe {

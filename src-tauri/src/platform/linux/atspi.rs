@@ -3,6 +3,8 @@ use zbus::blocking::{Connection, Proxy};
 use zbus::names::OwnedBusName;
 use zbus::zvariant::{ObjectPath, OwnedObjectPath};
 
+use crate::platform::address::looks_like_url;
+
 const REGISTRY: &str = "org.a11y.atspi.Registry";
 const ROOT: &str = "/org/a11y/atspi/accessible/root";
 const ACCESSIBLE: &str = "org.a11y.atspi.Accessible";
@@ -72,11 +74,6 @@ fn text_of(conn: &Connection, target: &Reference) -> Option<String> {
     let path = ObjectPath::try_from(target.1.as_str()).ok()?;
     let text = proxy(conn, &target.0, &path, TEXT)?;
     text.call::<_, _, String>("GetText", &(0i32, -1i32)).ok()
-}
-
-fn looks_like_url(value: &str) -> bool {
-    let trimmed = value.trim();
-    !trimmed.is_empty() && !trimmed.contains(' ') && !trimmed.contains('@') && trimmed.contains('.')
 }
 
 fn find_url(
