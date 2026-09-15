@@ -4,10 +4,10 @@
 
 ## [1.0.0] - 2026-09-14
 
-macOS only. Windows and Linux adapters are stubbed.
+macOS, Windows and Linux.
 
 - Global hotkey (`Cmd+Shift+.`) opens a context-aware overlay; configurable and resettable.
-- Detects the foreground app before showing, and the browser hostname via AppleScript (Chrome, Edge, Safari) or the Accessibility API (Firefox).
+- Detects the foreground app and the browser hostname before showing.
 - Packs for Jira, GitHub, Slack, plus `Default` when nothing matches.
 - Mentions encoded per platform and placed on the clipboard as HTML.
 - Pikmin snippets for 4 models × 5 effort levels.

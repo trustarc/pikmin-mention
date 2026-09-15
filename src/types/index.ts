@@ -5,10 +5,9 @@ export type Mention = {
 
 export type Snippet = {
   id: string;
-  keys: string[];
   label: string;
   category: string;
-  insert?: string;
+  insert: string;
   mention?: boolean;
   mentionText?: string;
   mentionHtml?: string;
@@ -18,7 +17,6 @@ export type Snippet = {
 export type Pack = {
   id: string;
   name: string;
-  version: number;
   match: { domains: string[]; apps: string[] };
   mention?: Mention;
   snippets: Snippet[];

@@ -28,7 +28,6 @@ fn on_pressed(app: &AppHandle) {
 
 pub fn register(app: &AppHandle, value: &str) -> Result<(), String> {
     let shortcut = parse(value)?;
-    eprintln!("[hotkey] registering {value:?} -> {shortcut:?}");
     let manager = app.global_shortcut();
 
     manager
@@ -41,5 +40,4 @@ pub fn register(app: &AppHandle, value: &str) -> Result<(), String> {
             }
         })
         .map_err(|error| error.to_string())
-        .inspect(|_| eprintln!("[hotkey] registered {value:?}"))
 }

@@ -77,7 +77,6 @@ export default function App() {
 
     const custom = (settings?.custom?.[pack.id] ?? []).map((entry) => ({
       id: entry.id,
-      keys: [],
       label: entry.label,
       category: 'Custom',
       insert: entry.insert,
@@ -128,7 +127,7 @@ export default function App() {
         ? { text: snippet.mentionText, html: snippet.mentionHtml }
         : undefined;
       const mention = snippet.mention ? (own ?? pack?.mention) : undefined;
-      const body = snippet.insert ?? snippet.keys.join(' ');
+      const body = snippet.insert;
       const text = mention ? `${mention.text} ${body}` : body;
 
       try {

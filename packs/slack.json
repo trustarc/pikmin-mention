@@ -1,7 +1,6 @@
 {
   "id": "slack",
   "name": "Slack",
-  "version": 12,
   "match": {
     "domains": [
       "slack.com"
@@ -17,7 +16,6 @@
   "snippets": [
     {
       "id": "pikmin-gpt-5.6-sol-low",
-      "keys": [],
       "label": "gpt-5.6-sol \u00b7 low",
       "category": "Pikmin",
       "mention": true,
@@ -25,7 +23,6 @@
     },
     {
       "id": "pikmin-gpt-5.6-sol-medium",
-      "keys": [],
       "label": "gpt-5.6-sol \u00b7 medium",
       "category": "Pikmin",
       "mention": true,
@@ -33,7 +30,6 @@
     },
     {
       "id": "pikmin-gpt-5.6-sol-high",
-      "keys": [],
       "label": "gpt-5.6-sol \u00b7 high",
       "category": "Pikmin",
       "mention": true,
@@ -41,7 +37,6 @@
     },
     {
       "id": "pikmin-gpt-5.6-sol-xhigh",
-      "keys": [],
       "label": "gpt-5.6-sol \u00b7 xhigh",
       "category": "Pikmin",
       "mention": true,
@@ -49,7 +44,6 @@
     },
     {
       "id": "pikmin-gpt-5.6-sol-max",
-      "keys": [],
       "label": "gpt-5.6-sol \u00b7 max",
       "category": "Pikmin",
       "mention": true,
@@ -57,7 +51,6 @@
     },
     {
       "id": "pikmin-gpt-6-astra-low",
-      "keys": [],
       "label": "gpt-6-astra \u00b7 low",
       "category": "Pikmin",
       "mention": true,
@@ -65,7 +58,6 @@
     },
     {
       "id": "pikmin-gpt-6-astra-medium",
-      "keys": [],
       "label": "gpt-6-astra \u00b7 medium",
       "category": "Pikmin",
       "mention": true,
@@ -73,7 +65,6 @@
     },
     {
       "id": "pikmin-gpt-6-astra-high",
-      "keys": [],
       "label": "gpt-6-astra \u00b7 high",
       "category": "Pikmin",
       "mention": true,
@@ -81,7 +72,6 @@
     },
     {
       "id": "pikmin-gpt-6-astra-xhigh",
-      "keys": [],
       "label": "gpt-6-astra \u00b7 xhigh",
       "category": "Pikmin",
       "mention": true,
@@ -89,7 +79,6 @@
     },
     {
       "id": "pikmin-gpt-6-astra-max",
-      "keys": [],
       "label": "gpt-6-astra \u00b7 max",
       "category": "Pikmin",
       "mention": true,
@@ -97,7 +86,6 @@
     },
     {
       "id": "pikmin-opus-low",
-      "keys": [],
       "label": "opus \u00b7 low",
       "category": "Pikmin",
       "mention": true,
@@ -105,7 +93,6 @@
     },
     {
       "id": "pikmin-opus-medium",
-      "keys": [],
       "label": "opus \u00b7 medium",
       "category": "Pikmin",
       "mention": true,
@@ -113,7 +100,6 @@
     },
     {
       "id": "pikmin-opus-high",
-      "keys": [],
       "label": "opus \u00b7 high",
       "category": "Pikmin",
       "mention": true,
@@ -121,7 +107,6 @@
     },
     {
       "id": "pikmin-opus-xhigh",
-      "keys": [],
       "label": "opus \u00b7 xhigh",
       "category": "Pikmin",
       "mention": true,
@@ -129,7 +114,6 @@
     },
     {
       "id": "pikmin-opus-max",
-      "keys": [],
       "label": "opus \u00b7 max",
       "category": "Pikmin",
       "mention": true,
@@ -137,7 +121,6 @@
     },
     {
       "id": "pikmin-fable-low",
-      "keys": [],
       "label": "fable \u00b7 low",
       "category": "Pikmin",
       "mention": true,
@@ -145,7 +128,6 @@
     },
     {
       "id": "pikmin-fable-medium",
-      "keys": [],
       "label": "fable \u00b7 medium",
       "category": "Pikmin",
       "mention": true,
@@ -153,7 +135,6 @@
     },
     {
       "id": "pikmin-fable-high",
-      "keys": [],
       "label": "fable \u00b7 high",
       "category": "Pikmin",
       "mention": true,
@@ -161,7 +142,6 @@
     },
     {
       "id": "pikmin-fable-xhigh",
-      "keys": [],
       "label": "fable \u00b7 xhigh",
       "category": "Pikmin",
       "mention": true,
@@ -169,7 +149,6 @@
     },
     {
       "id": "pikmin-fable-max",
-      "keys": [],
       "label": "fable \u00b7 max",
       "category": "Pikmin",
       "mention": true,
