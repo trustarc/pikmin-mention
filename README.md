@@ -8,15 +8,29 @@ Jira, Slack and GitHub each encode mentions differently, so typing one by hand d
 
 Download your platform's build from [Releases](https://github.com/trustarc/pikmin-mention/releases). There is no Dock icon — the app lives in the menu bar or tray.
 
-**macOS** — builds are unsigned, so clear the quarantine flag after moving the app into `/Applications`, then allow Accessibility when asked:
+### macOS
+
+1. Open the `.dmg` and drag the app into Applications
+2. Run this once — the build is unsigned, so macOS blocks it otherwise:
+
+   ```sh
+   xattr -dr com.apple.quarantine "/Applications/Pikmin Mention.app"
+   ```
+
+3. Open the app and allow Accessibility when asked
+
+### Windows
+
+Run the installer. On the SmartScreen warning choose **More info → Run anyway**.
+
+### Linux
 
 ```sh
-xattr -dr com.apple.quarantine "/Applications/Pikmin Mention.app"
+chmod +x Pikmin.Mention_*.AppImage
+./Pikmin.Mention_*.AppImage
 ```
 
-**Windows** — run the installer and choose **More info → Run anyway** on the SmartScreen warning.
-
-**Linux** — `chmod +x` the AppImage and run it. Browser detection needs X11.
+Browser detection needs X11.
 
 ## Usage
 
@@ -39,7 +53,8 @@ The pack matching your current app or site is selected automatically. Add your o
 mise install
 bun install
 mise start      # run
-mise check      # typecheck, format, test, clippy
+mise format     # prettier + rustfmt
+mise test       # typecheck, lint, tests
 mise build      # bundle
 ```
 
