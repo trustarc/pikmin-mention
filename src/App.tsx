@@ -46,6 +46,14 @@ export default function App() {
     void invoke<string>('default_hotkey').then(setDefaultHotkey);
     void invoke<boolean>('is_macos').then(setMac);
     void getVersion().then(setVersion);
+
+    void check()
+      .then((found) => {
+        if (found) {
+          void invoke('update_available', { version: found.version });
+        }
+      })
+      .catch(() => undefined);
     void invoke<ActiveContext>('get_active_context').then(setContext);
 
     const unlistenUpdate = listen('check-update', () => {

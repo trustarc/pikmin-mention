@@ -2,10 +2,15 @@
 
 ## [Unreleased]
 
+## [1.0.7] - 2026-09-15
+
+- Mark the tray icon with a dot when an update is available, checked once at startup.
+- Retry enabling Launch at Login if the first attempt fails, instead of marking it done.
+
 ## [1.0.6] - 2026-09-15
 
-- **Launch at Login** in the tray menu starts the app with macOS, Windows or your Linux session.
-- Offer a restart after granting Accessibility. macOS reads the permission only when a process launches, so the prompt stayed up until the app was restarted.
+- **Launch at Login** in the tray menu, on by default.
+- Offer a restart after granting Accessibility, which macOS only reads at launch.
 
 ## [1.0.5] - 2026-09-15
 
