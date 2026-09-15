@@ -33,6 +33,7 @@ export default function App() {
   const [recording, setRecording] = useState(false);
   const [error, setError] = useState('');
   const [trusted, setTrusted] = useState(true);
+  const [askedAccess, setAskedAccess] = useState(false);
 
   const matchedId = useMemo(
     () => resolveContext(context)?.id ?? null,
@@ -412,16 +413,25 @@ export default function App() {
       {!trusted ? (
         <div className="border-hairline flex items-center justify-between gap-3 border-t px-5 py-2.5">
           <span className="text-xs text-white/45">
-            Copied to clipboard. Enable Accessibility to paste automatically.
+            {askedAccess
+              ? 'Allowed it? Restart to apply — macOS only reads the permission at launch.'
+              : 'Copied to clipboard. Enable Accessibility to paste automatically.'}
           </span>
-          <Button
-            size="sm"
-            onClick={() => {
-              void invoke<boolean>('request_accessibility').then(setTrusted);
-            }}
-          >
-            Grant access
-          </Button>
+          {askedAccess ? (
+            <Button size="sm" onClick={() => void relaunch()}>
+              Restart
+            </Button>
+          ) : (
+            <Button
+              size="sm"
+              onClick={() => {
+                setAskedAccess(true);
+                void invoke<boolean>('request_accessibility').then(setTrusted);
+              }}
+            >
+              Grant access
+            </Button>
+          )}
         </div>
       ) : null}
 

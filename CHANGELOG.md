@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+## [1.0.6] - 2026-09-15
+
+- **Launch at Login** in the tray menu starts the app with macOS, Windows or your Linux session.
+- Offer a restart after granting Accessibility. macOS reads the permission only when a process launches, so the prompt stayed up until the app was restarted.
+
 ## [1.0.5] - 2026-09-15
 
 - Fix the update feed. macOS was missing from it because the build only produced a `.dmg`, the platform keys did not match what the app looks for, and the asset URLs used the local filenames rather than the names GitHub assigns.
