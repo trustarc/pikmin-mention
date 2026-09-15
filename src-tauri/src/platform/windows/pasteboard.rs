@@ -6,6 +6,7 @@ use windows::Win32::System::DataExchange::{
 use windows::Win32::System::Memory::{GlobalLock, GlobalSize, GlobalUnlock};
 use windows::Win32::System::Ole::CF_UNICODETEXT;
 
+use crate::platform::cfhtml::html_fragment;
 use crate::platform::types::Clipboard;
 
 const MAX_BYTES: usize = 4 * 1024 * 1024;
@@ -53,12 +54,6 @@ fn read_unicode(format: u32) -> Option<String> {
         let end = slice.iter().position(|unit| *unit == 0).unwrap_or(units);
         Some(String::from_utf16_lossy(&slice[..end]))
     })
-}
-
-fn html_fragment(raw: &[u8]) -> Option<String> {
-    let text = String::from_utf8_lossy(raw);
-    let start = text.find("<html")?;
-    Some(text[start..].to_string())
 }
 
 pub fn read() -> Option<Clipboard> {

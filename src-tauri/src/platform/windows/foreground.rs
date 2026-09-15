@@ -1,13 +1,18 @@
+use std::ffi::c_void;
+use std::sync::atomic::{AtomicIsize, Ordering};
+
 use windows::Win32::Foundation::{CloseHandle, HWND, LPARAM, MAX_PATH};
 use windows::Win32::System::Threading::{
     OpenProcess, QueryFullProcessImageNameW, PROCESS_NAME_FORMAT, PROCESS_QUERY_LIMITED_INFORMATION,
 };
 use windows::Win32::UI::WindowsAndMessaging::{
-    EnumWindows, GetForegroundWindow, GetWindowThreadProcessId, IsWindowVisible,
+    EnumWindows, GetForegroundWindow, GetWindowThreadProcessId, IsWindow, IsWindowVisible,
     SetForegroundWindow,
 };
 
 use crate::platform::types::Frontmost;
+
+static LAST_FOREGROUND: AtomicIsize = AtomicIsize::new(0);
 
 fn process_path(pid: u32) -> Option<String> {
     let handle = unsafe { OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, false, pid) }.ok()?;
@@ -38,19 +43,25 @@ fn display_name(path: &str) -> String {
         .to_string()
 }
 
+fn owner_pid(window: HWND) -> u32 {
+    let mut pid = 0u32;
+    unsafe { GetWindowThreadProcessId(window, Some(&mut pid)) };
+    pid
+}
+
 pub fn frontmost_app() -> Option<Frontmost> {
     let window = unsafe { GetForegroundWindow() };
     if window.is_invalid() {
         return None;
     }
 
-    let mut pid = 0u32;
-    unsafe { GetWindowThreadProcessId(window, Some(&mut pid)) };
+    let pid = owner_pid(window);
     if pid == 0 {
         return None;
     }
 
     let path = process_path(pid)?;
+    LAST_FOREGROUND.store(window.0 as isize, Ordering::Relaxed);
 
     Some(Frontmost {
         name: display_name(&path),
@@ -67,10 +78,7 @@ struct Search {
 unsafe extern "system" fn find_window(window: HWND, param: LPARAM) -> windows::core::BOOL {
     let search = unsafe { &mut *(param.0 as *mut Search) };
 
-    let mut pid = 0u32;
-    unsafe { GetWindowThreadProcessId(window, Some(&mut pid)) };
-
-    if pid == search.pid && unsafe { IsWindowVisible(window) }.as_bool() {
+    if owner_pid(window) == search.pid && unsafe { IsWindowVisible(window) }.as_bool() {
         search.found = window;
         return false.into();
     }
@@ -78,13 +86,22 @@ unsafe extern "system" fn find_window(window: HWND, param: LPARAM) -> windows::c
     true.into()
 }
 
-pub fn activate_app(_bundle_id: &str, pid: i32) {
-    if pid <= 0 {
-        return;
+pub(super) fn remembered_window(pid: u32) -> Option<HWND> {
+    let window = HWND(LAST_FOREGROUND.load(Ordering::Relaxed) as *mut c_void);
+
+    if window.is_invalid()
+        || !unsafe { IsWindow(Some(window)) }.as_bool()
+        || !unsafe { IsWindowVisible(window) }.as_bool()
+    {
+        return None;
     }
 
+    (owner_pid(window) == pid).then_some(window)
+}
+
+fn first_visible_window(pid: u32) -> Option<HWND> {
     let mut search = Search {
-        pid: pid as u32,
+        pid,
         found: HWND::default(),
     };
 
@@ -95,7 +112,18 @@ pub fn activate_app(_bundle_id: &str, pid: i32) {
         )
     };
 
-    if !search.found.is_invalid() {
-        let _ = unsafe { SetForegroundWindow(search.found) };
+    (!search.found.is_invalid()).then_some(search.found)
+}
+
+pub fn activate_app(_bundle_id: &str, pid: i32) {
+    if pid <= 0 {
+        return;
     }
+
+    let pid = pid as u32;
+    let Some(window) = remembered_window(pid).or_else(|| first_visible_window(pid)) else {
+        return;
+    };
+
+    let _ = unsafe { SetForegroundWindow(window) };
 }

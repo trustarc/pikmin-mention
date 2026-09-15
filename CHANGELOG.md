@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+## [1.0.10] - 2026-09-15
+
+- Windows: clicking inside the overlay no longer closes it. The outside-click check scaled the window bounds down to logical points while the cursor already comes in physical pixels, so on any display above 100% every click counted as outside. The same applied to X11.
+- Windows: open the overlay on the monitor under the cursor rather than the primary one.
+- Go back to the pack matching the current app every time the overlay opens, instead of keeping a tab that was picked by hand. The reset alone was not enough: the tab clicked last got focus back when the overlay reopened and reactivated itself, so tabs now change only on click. Clicking a tab also returns focus to the search box.
+- Windows: keep only the copied fragment when capturing a mention from the clipboard. The stored HTML carried the whole CF_HTML document, which then got wrapped in another one on paste.
+- Windows: return to the exact window that was in front before pasting, rather than the first visible window of that process.
+- Windows: read the browser address from the window that was in front. The lookup took the first window owned by the browser process, which in Chrome is a hidden helper with no address bar, so Jira and GitHub pages fell back to the default pack. Firefox-style combo box address bars are accepted too.
+
 ## [1.0.9] - 2026-09-15
 
 - Read the address again in Firefox. Its URL bar is a combo box, not a text field, so the lookup found nothing and every page fell back to the default pack.

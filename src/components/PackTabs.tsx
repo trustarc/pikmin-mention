@@ -18,6 +18,7 @@ export default function PackTabs({
     <Tabs
       value={activeId ?? ''}
       onValueChange={onSelect}
+      activationMode="manual"
       className="border-hairline border-b px-3 py-2"
     >
       <TabsList className="bg-transparent p-0">

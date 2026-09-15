@@ -100,7 +100,7 @@ export default function App() {
 
   useEffect(() => {
     setActiveId(matchedId);
-  }, [matchedId]);
+  }, [context, matchedId]);
 
   const pack = useMemo(
     () => PACKS.find((item) => item.id === activeId) ?? null,
@@ -333,7 +333,10 @@ export default function App() {
         packs={PACKS}
         activeId={activeId}
         matchedId={matchedId}
-        onSelect={setActiveId}
+        onSelect={(id) => {
+          setActiveId(id);
+          requestAnimationFrame(() => searchRef.current?.focus());
+        }}
       />
 
       <Input
