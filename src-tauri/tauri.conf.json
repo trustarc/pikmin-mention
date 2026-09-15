@@ -34,10 +34,7 @@
   },
   "bundle": {
     "active": true,
-    "targets": [
-      "app",
-      "dmg"
-    ],
+    "targets": "all",
     "category": "Productivity",
     "shortDescription": "Context-aware keyboard shortcut cheat sheet",
     "icon": [

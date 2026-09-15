@@ -8,6 +8,7 @@ type Props = {
   selected: boolean;
   pinned: boolean;
   accelerator: number | null;
+  mac: boolean;
   followSelection: boolean;
   dragging: boolean;
   dropTarget: boolean;
@@ -26,6 +27,7 @@ export default function SnippetRow({
   selected,
   pinned,
   accelerator,
+  mac,
   followSelection,
   dragging,
   dropTarget,
@@ -88,7 +90,8 @@ export default function SnippetRow({
 
       {accelerator ? (
         <kbd className="border-hairline shrink-0 rounded border bg-white/5 px-1.5 py-0.5 font-mono text-xs text-white/40">
-          ⌘{accelerator}
+          {mac ? '⌘' : 'Ctrl+'}
+          {accelerator}
         </kbd>
       ) : null}
 

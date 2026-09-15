@@ -91,6 +91,11 @@ fn default_hotkey() -> &'static str {
 }
 
 #[tauri::command]
+fn is_macos() -> bool {
+    cfg!(target_os = "macos")
+}
+
+#[tauri::command]
 fn reset_hotkey(app: AppHandle) -> Result<Settings, String> {
     hotkey::register(&app, hotkey::DEFAULT)?;
 
@@ -224,6 +229,7 @@ pub fn run() {
             dismiss,
             get_active_context,
             get_settings,
+            is_macos,
             insert_snippet,
             read_clipboard_mention,
             remove_custom,

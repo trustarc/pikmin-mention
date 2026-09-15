@@ -20,6 +20,7 @@ export default function App() {
   const [settings, setSettings] = useState<Settings | null>(null);
   const [adding, setAdding] = useState(false);
   const [defaultHotkey, setDefaultHotkey] = useState('');
+  const [mac, setMac] = useState(true);
   const [followSelection, setFollowSelection] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState('');
@@ -37,6 +38,7 @@ export default function App() {
     void invoke<boolean>('accessibility_status').then(setTrusted);
     void invoke<Settings>('get_settings').then(setSettings);
     void invoke<string>('default_hotkey').then(setDefaultHotkey);
+    void invoke<boolean>('is_macos').then(setMac);
     void invoke<ActiveContext>('get_active_context').then(setContext);
 
     const unlistenContext = listen<ActiveContext>('context', (event) => {
@@ -121,8 +123,6 @@ export default function App() {
 
   const activate = useCallback(
     async (snippet: Snippet) => {
-      await getCurrentWindow().hide();
-
       const own = snippet.mentionText
         ? { text: snippet.mentionText, html: snippet.mentionHtml }
         : undefined;
@@ -137,8 +137,11 @@ export default function App() {
           await writeText(text);
         }
       } catch (reason) {
-        setError(String(reason));
+        setError(`Could not write to the clipboard: ${reason}`);
+        return;
       }
+
+      await getCurrentWindow().hide();
 
       if (pack) {
         void invoke<Settings>('set_last_used', {
@@ -186,7 +189,15 @@ export default function App() {
       }
 
       if (event.key === 'Escape') {
+        if (adding) {
+          setAdding(false);
+          return;
+        }
         void invoke('dismiss');
+        return;
+      }
+
+      if (adding) {
         return;
       }
 
@@ -213,7 +224,7 @@ export default function App() {
       }
 
       const digit = /^Digit([1-9])$/.exec(event.code);
-      if (digit && (event.metaKey || event.altKey)) {
+      if (digit && (event.metaKey || event.ctrlKey || event.altKey)) {
         event.preventDefault();
         const target = snippets[Number(digit[1]) - 1];
         if (target) {
@@ -233,7 +244,7 @@ export default function App() {
 
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [recording, snippets, selectedId, activeId, activate]);
+  }, [recording, adding, snippets, selectedId, activeId, activate]);
 
   return (
     <main className="border-hairline bg-surface flex h-full flex-col overflow-hidden rounded-2xl border font-sans text-base text-white/95 backdrop-blur-2xl">
@@ -255,7 +266,7 @@ export default function App() {
               variant="ghost"
               size="icon"
               aria-label="Reset snippet"
-              title={`Reset to ${formatHotkey(defaultHotkey)}`}
+              title={`Reset to ${formatHotkey(defaultHotkey, mac)}`}
               onClick={() => {
                 void invoke<Settings>('reset_hotkey')
                   .then((next) => {
@@ -275,7 +286,9 @@ export default function App() {
             onClick={() => setRecording(true)}
             className="h-7 font-mono text-xs text-white/70"
           >
-            {recording ? 'Press keys…' : formatHotkey(settings?.hotkey ?? '')}
+            {recording
+              ? 'Press keys…'
+              : formatHotkey(settings?.hotkey ?? '', mac)}
           </Button>
         </div>
       </header>
@@ -312,6 +325,7 @@ export default function App() {
             snippets={snippets}
             selectedId={selectedId}
             pinned={settings?.pinned ?? []}
+            mac={mac}
             followSelection={followSelection}
             onActivate={activate}
             onHover={() => undefined}

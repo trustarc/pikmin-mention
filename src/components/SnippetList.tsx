@@ -6,6 +6,7 @@ type Props = {
   snippets: Snippet[];
   selectedId: string | null;
   pinned: string[];
+  mac: boolean;
   followSelection: boolean;
   onActivate: (snippet: Snippet) => void;
   onHover: (snippet: Snippet) => void;
@@ -18,6 +19,7 @@ export default function SnippetList({
   snippets,
   selectedId,
   pinned,
+  mac,
   followSelection,
   onActivate,
   onHover,
@@ -38,6 +40,7 @@ export default function SnippetList({
           selected={snippet.id === selectedId}
           pinned={pinned.includes(snippet.id)}
           accelerator={index < 9 ? index + 1 : null}
+          mac={mac}
           followSelection={followSelection}
           dragging={draggingId === snippet.id}
           dropTarget={

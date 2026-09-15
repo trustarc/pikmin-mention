@@ -5,7 +5,12 @@ use tauri_plugin_global_shortcut::{GlobalShortcutExt, Shortcut, ShortcutState};
 
 use crate::{context, overlay};
 
+#[cfg(target_os = "macos")]
 pub const DEFAULT: &str = "Super+Shift+Period";
+
+#[cfg(not(target_os = "macos"))]
+pub const DEFAULT: &str = "Control+Shift+Period";
+
 pub const LEGACY_DEFAULTS: &[&str] = &["Control+Alt+KeyP", "Super+Alt+KeyP", "Alt+Shift+Period"];
 
 pub fn parse(value: &str) -> Result<Shortcut, String> {

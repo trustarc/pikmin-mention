@@ -11,24 +11,33 @@ const KEY_LABELS: Record<string, string> = {
   Space: 'Space',
 };
 
-const MODIFIER_LABELS: Record<string, string> = {
+const MAC_MODIFIERS: Record<string, string> = {
   Control: '⌃',
   Alt: '⌥',
   Shift: '⇧',
   Super: '⌘',
 };
 
-export function formatHotkey(value: string) {
+const OTHER_MODIFIERS: Record<string, string> = {
+  Control: 'Ctrl',
+  Alt: 'Alt',
+  Shift: 'Shift',
+  Super: 'Win',
+};
+
+export function formatHotkey(value: string, mac: boolean) {
+  const modifiers = mac ? MAC_MODIFIERS : OTHER_MODIFIERS;
+
   return value
     .split('+')
     .map((part) => {
-      const label = MODIFIER_LABELS[part];
+      const label = modifiers[part];
       if (label) {
         return label;
       }
       return (KEY_LABELS[part] ?? part).replace(/^(Key|Digit)/, '');
     })
-    .join(' ');
+    .join(mac ? ' ' : '+');
 }
 
 export function toShortcut(event: KeyboardEvent) {
