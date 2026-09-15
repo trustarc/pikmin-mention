@@ -29,22 +29,31 @@ pub fn init(app: &AppHandle) -> tauri::Result<()> {
         ],
     )?;
 
+    let toggle = autostart.clone();
+
     let mut builder = TrayIconBuilder::with_id("tray")
         .tooltip("Pikmin Mention")
         .menu(&menu)
         .show_menu_on_left_click(true)
-        .on_menu_event(|app, event| match event.id.as_ref() {
+        .on_menu_event(move |app, event| match event.id.as_ref() {
             "settings" => {
                 let _ = overlay::show(app);
             }
             "autostart" => {
                 let launcher = app.autolaunch();
                 let enabled = launcher.is_enabled().unwrap_or(false);
-                let _ = if enabled {
+
+                let result = if enabled {
                     launcher.disable()
                 } else {
                     launcher.enable()
                 };
+
+                if let Err(error) = result {
+                    eprintln!("launch at login could not be changed: {error}");
+                }
+
+                let _ = toggle.set_checked(launcher.is_enabled().unwrap_or(false));
             }
             "updates" => {
                 let _ = overlay::show(app);
