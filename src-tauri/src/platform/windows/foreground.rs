@@ -88,7 +88,7 @@ unsafe extern "system" fn find_window(window: HWND, param: LPARAM) -> windows::c
     true.into()
 }
 
-fn remembered_window(pid: u32) -> Option<HWND> {
+pub(super) fn remembered_window(pid: u32) -> Option<HWND> {
     let window = HWND(LAST_FOREGROUND.load(Ordering::Relaxed) as *mut c_void);
 
     if window.is_invalid() || !unsafe { IsWindow(Some(window)) }.as_bool() {
