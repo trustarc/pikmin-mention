@@ -132,4 +132,5 @@ jobs:
             exit 0
           fi
 
-          gh release create "$TAG" --title "$TAG" --generate-notes artifacts/*
+          find artifacts -type f -print0 \
+            | xargs -0 gh release create "$TAG" --title "$TAG" --generate-notes

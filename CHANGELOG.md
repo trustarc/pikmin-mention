@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [1.0.4] - 2026-09-15
+
+- Attach release assets as files. The previous run uploaded artifacts that kept their directory structure, so the release step tried to upload a directory and failed.
+
 ## [1.0.3] - 2026-09-15
 
 - Sign the macOS app while it is bundled, so the `.dmg` carries the signature too. The previous release signed the app after the `.dmg` was already built, which had no effect.
