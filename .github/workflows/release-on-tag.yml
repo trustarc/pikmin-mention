@@ -3,7 +3,7 @@ name: Release on tag
 on:
   push:
     tags:
-      - 'v*'
+      - 'pikmin-mention==*'
 
 jobs:
   verify:
@@ -13,11 +13,11 @@ jobs:
 
       - name: Tag must match the manifest version
         run: |
-          TAG="${GITHUB_REF#refs/tags/v}"
+          TAG="${GITHUB_REF#refs/tags/pikmin-mention==}"
           MANIFEST=$(grep -m1 '^version = ' src-tauri/Cargo.toml | sed -E 's/^version = "(.*)"/\1/')
 
           if [ "$TAG" != "$MANIFEST" ]; then
-            echo "tag v$TAG does not match src-tauri/Cargo.toml ($MANIFEST)" >&2
+            echo "tag version $TAG does not match src-tauri/Cargo.toml ($MANIFEST)" >&2
             exit 1
           fi
 

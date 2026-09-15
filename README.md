@@ -39,10 +39,10 @@ mise build      # bundle
 
 ## Releases
 
-Bump `version` in `src-tauri/Cargo.toml`, then push a matching tag. CI builds all three platforms and publishes the release.
+Bump `version` in `src-tauri/Cargo.toml`, commit to `main`, then:
 
 ```sh
-git tag v1.0.1 && git push origin v1.0.1
+mise publish
 ```
 
 ## Privacy
