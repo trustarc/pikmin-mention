@@ -1,6 +1,6 @@
-import { useState } from "react";
-import ShortcutRow from "@/components/ShortcutRow";
-import type { Shortcut } from "@/types";
+import ShortcutRow from '@/components/ShortcutRow';
+import type { Shortcut } from '@/types';
+import { useState } from 'react';
 
 type Props = {
   shortcuts: Shortcut[];
@@ -40,7 +40,11 @@ export default function ShortcutList({
           accelerator={index < 9 ? index + 1 : null}
           followSelection={followSelection}
           dragging={draggingId === shortcut.id}
-          dropTarget={draggingId !== null && overIndex === index && draggingId !== shortcut.id}
+          dropTarget={
+            draggingId !== null &&
+            overIndex === index &&
+            draggingId !== shortcut.id
+          }
           onActivate={() => onActivate(shortcut)}
           onHover={() => onHover(shortcut)}
           onTogglePin={() => onTogglePin(shortcut)}

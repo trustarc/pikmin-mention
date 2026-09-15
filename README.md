@@ -6,6 +6,11 @@ Jira, Slack and GitHub each encode mentions differently — a Jira mention is an
 
 Ships with packs for invoking [Pikmin](https://github.com/trustarc/pikmin), and you can capture any other mention straight from your clipboard.
 
+## Releases
+
+See [CHANGELOG.md](CHANGELOG.md). The version lives in `src-tauri/Cargo.toml` only —
+`tauri.conf.json` and `package.json` fall back to it.
+
 ## Requirements
 
 Toolchain versions are pinned in `mise.toml`:

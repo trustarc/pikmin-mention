@@ -10,57 +10,82 @@ use tauri::AppHandle;
 use context::{ActiveContext, ContextState};
 use settings::Settings;
 
-fn restore_focus(app: &AppHandle, state: &tauri::State<'_, ContextState>) {
-    eprintln!("[overlay] restore_focus called");
-    let bundle_id = state
+fn hide_then(app: &AppHandle, bundle_id: String, after: Option<u64>) {
+    let handle = app.clone();
+
+    let _ = app.run_on_main_thread(move || {
+        let hidden = overlay::hide(&handle);
+        let visible = overlay::get(&handle).and_then(|w| w.is_visible().ok());
+        eprintln!("[overlay] hide -> {hidden:?}, visible = {visible:?}, prev = {bundle_id:?}");
+
+        platform::activate_app(&bundle_id);
+
+        let Some(delay) = after else {
+            return;
+        };
+
+        std::thread::spawn(move || {
+            std::thread::sleep(std::time::Duration::from_millis(delay));
+            platform::send_paste();
+            std::thread::sleep(std::time::Duration::from_millis(80));
+            platform::send_newline();
+        });
+    });
+}
+
+fn previous_app(state: &tauri::State<'_, ContextState>) -> String {
+    state
         .0
         .lock()
         .map(|current| current.bundle_id.clone())
-        .unwrap_or_default();
-
-    match overlay::hide(app) {
-        Ok(()) => eprintln!("[overlay] hide ok"),
-        Err(error) => eprintln!("[overlay] hide failed: {error}"),
-    }
-    platform::activate_app(&bundle_id);
+        .unwrap_or_default()
 }
 
 #[tauri::command]
 fn dismiss(app: AppHandle, state: tauri::State<'_, ContextState>) {
-    eprintln!("[overlay] dismiss called");
-    restore_focus(&app, &state);
+    hide_then(&app, previous_app(&state), None);
 }
 
 #[tauri::command]
-fn insert_snippet(
-    app: AppHandle,
-    state: tauri::State<'_, ContextState>,
-    mention: Option<String>,
-    mention_delay_ms: u64,
-) -> Result<(), String> {
-    eprintln!("[overlay] insert_snippet called");
-    restore_focus(&app, &state);
+fn insert_snippet(app: AppHandle, state: tauri::State<'_, ContextState>) -> Result<(), String> {
+    let previous = previous_app(&state);
 
     if !platform::accessibility_trusted() {
+        hide_then(&app, previous, None);
         return Err("accessibility".into());
     }
 
-    std::thread::spawn(move || {
-        std::thread::sleep(std::time::Duration::from_millis(160));
-
-        if let Some(handle) = mention.filter(|value| !value.is_empty()) {
-            platform::type_text(&handle);
-            std::thread::sleep(std::time::Duration::from_millis(mention_delay_ms));
-            platform::send_return();
-            std::thread::sleep(std::time::Duration::from_millis(120));
-        }
-
-        platform::send_paste();
-        std::thread::sleep(std::time::Duration::from_millis(80));
-        platform::send_newline();
-    });
-
+    hide_then(&app, previous, Some(180));
     Ok(())
+}
+
+#[tauri::command]
+fn accessibility_status() -> bool {
+    platform::accessibility_trusted()
+}
+
+#[tauri::command]
+fn request_accessibility() -> bool {
+    let trusted = platform::request_accessibility();
+    if !trusted {
+        platform::open_accessibility_settings();
+    }
+    trusted
+}
+
+#[derive(serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+struct ClipboardMention {
+    text: String,
+    html: Option<String>,
+}
+
+#[tauri::command]
+fn read_clipboard_mention() -> Option<ClipboardMention> {
+    platform::read_clipboard().map(|clipboard| ClipboardMention {
+        text: clipboard.text,
+        html: clipboard.html,
+    })
 }
 
 #[tauri::command]
@@ -77,21 +102,6 @@ fn reset_hotkey(app: AppHandle) -> Result<Settings, String> {
     settings::save(&app, &settings)?;
 
     Ok(settings)
-}
-
-#[derive(serde::Serialize)]
-#[serde(rename_all = "camelCase")]
-struct ClipboardMention {
-    text: String,
-    html: Option<String>,
-}
-
-#[tauri::command]
-fn read_clipboard_mention() -> Option<ClipboardMention> {
-    platform::read_clipboard().map(|clipboard| ClipboardMention {
-        text: clipboard.text,
-        html: clipboard.html,
-    })
 }
 
 #[tauri::command]
@@ -122,6 +132,15 @@ fn toggle_pin(app: AppHandle, id: String) -> Result<Settings, String> {
 
     settings::save(&app, &settings)?;
     Ok(settings)
+}
+
+fn uuid() -> String {
+    use std::time::{SystemTime, UNIX_EPOCH};
+    let nanos = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map(|value| value.as_nanos())
+        .unwrap_or_default();
+    format!("{nanos:x}")
 }
 
 #[tauri::command]
@@ -167,32 +186,13 @@ fn remove_custom(app: AppHandle, pack_id: String, id: String) -> Result<Settings
     Ok(settings)
 }
 
-fn uuid() -> String {
-    use std::time::{SystemTime, UNIX_EPOCH};
-    let nanos = SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .map(|value| value.as_nanos())
-        .unwrap_or_default();
-    format!("{nanos:x}")
-}
-
-#[tauri::command]
-fn accessibility_status() -> bool {
-    platform::accessibility_trusted()
-}
-
-#[tauri::command]
-fn request_accessibility() -> bool {
-    let trusted = platform::request_accessibility();
-    if !trusted {
-        platform::open_accessibility_settings();
-    }
-    trusted
-}
-
 #[tauri::command]
 fn get_active_context(state: tauri::State<'_, ContextState>) -> ActiveContext {
-    state.0.lock().map(|value| value.clone()).unwrap_or_default()
+    state
+        .0
+        .lock()
+        .map(|value| value.clone())
+        .unwrap_or_default()
 }
 
 #[tauri::command]
@@ -245,13 +245,17 @@ pub fn run() {
 
             let handle = app.handle().clone();
             platform::watch_outside_clicks(move || {
-                let visible = overlay::get(&handle)
-                    .and_then(|window| window.is_visible().ok())
-                    .unwrap_or(false);
-
-                if visible {
-                    let _ = overlay::hide(&handle);
+                let Some(window) = overlay::get(&handle) else {
+                    return;
+                };
+                if !window.is_visible().unwrap_or(false) {
+                    return;
                 }
+                if overlay::contains_point(&window, platform::screen_click_point()) {
+                    return;
+                }
+
+                let _ = overlay::hide(&handle);
             });
 
             let mut stored = settings::load(app.handle());

@@ -1,59 +1,59 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { invoke } from "@tauri-apps/api/core";
-import { listen } from "@tauri-apps/api/event";
-import { getCurrentWindow } from "@tauri-apps/api/window";
-import { writeHtml, writeText } from "@tauri-apps/plugin-clipboard-manager";
-import CustomForm from "@/components/CustomForm";
-import PackTabs from "@/components/PackTabs";
-import ShortcutList from "@/components/ShortcutList";
-import { resolveContext } from "@/context/resolveContext";
-import { Plus, RotateCcw } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { formatHotkey, toShortcut } from "@/hotkey";
-import { PACKS } from "@/packs/packLoader";
-import type { ActiveContext, Settings, Shortcut } from "@/types";
-
-const MENTION_DELAY_MS = 700;
+import CustomForm from '@/components/CustomForm';
+import PackTabs from '@/components/PackTabs';
+import ShortcutList from '@/components/ShortcutList';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { resolveContext } from '@/context/resolveContext';
+import { formatHotkey, toShortcut } from '@/hotkey';
+import { PACKS } from '@/packs/packLoader';
+import type { ActiveContext, Settings, Shortcut } from '@/types';
+import { invoke } from '@tauri-apps/api/core';
+import { listen } from '@tauri-apps/api/event';
+import { getCurrentWindow } from '@tauri-apps/api/window';
+import { writeHtml, writeText } from '@tauri-apps/plugin-clipboard-manager';
+import { Plus, RotateCcw } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 export default function App() {
   const [context, setContext] = useState<ActiveContext | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [settings, setSettings] = useState<Settings | null>(null);
   const [adding, setAdding] = useState(false);
-  const [defaultHotkey, setDefaultHotkey] = useState("");
+  const [defaultHotkey, setDefaultHotkey] = useState('');
   const [followSelection, setFollowSelection] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
-  const [openCount, setOpenCount] = useState(0);
-  const settingsRef = useRef<Settings | null>(null);
-  const shortcutsRef = useRef<Shortcut[]>([]);
-  const [query, setQuery] = useState("");
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [query, setQuery] = useState('');
+  const [pendingId, setPendingId] = useState<string | null>(null);
   const [recording, setRecording] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   const [trusted, setTrusted] = useState(true);
 
-  const matchedId = useMemo(() => resolveContext(context)?.id ?? null, [context]);
+  const matchedId = useMemo(
+    () => resolveContext(context)?.id ?? null,
+    [context],
+  );
 
   useEffect(() => {
-    void invoke<boolean>("accessibility_status").then(setTrusted);
-    void invoke<Settings>("get_settings").then(setSettings);
-    void invoke<string>("default_hotkey").then(setDefaultHotkey);
-    void invoke<ActiveContext>("get_active_context").then(setContext);
+    void invoke<boolean>('accessibility_status').then(setTrusted);
+    void invoke<Settings>('get_settings').then(setSettings);
+    void invoke<string>('default_hotkey').then(setDefaultHotkey);
+    void invoke<ActiveContext>('get_active_context').then(setContext);
 
-    const unlistenContext = listen<ActiveContext>("context", (event) => {
+    const unlistenContext = listen<ActiveContext>('context', (event) => {
       setContext(event.payload);
-      setQuery("");
+      setQuery('');
       setAdding(false);
     });
 
-    const unlistenFocus = getCurrentWindow().onFocusChanged(({ payload: focused }) => {
-      if (focused) {
-        searchRef.current?.focus();
-        searchRef.current?.select();
-        setOpenCount((count) => count + 1);
-      }
-    });
+    const unlistenFocus = getCurrentWindow().onFocusChanged(
+      ({ payload: focused }) => {
+        if (focused) {
+          searchRef.current?.focus();
+          searchRef.current?.select();
+          setPendingId(null);
+        }
+      },
+    );
 
     return () => {
       void unlistenContext.then((off) => off());
@@ -64,10 +64,6 @@ export default function App() {
   useEffect(() => {
     setActiveId(matchedId);
   }, [matchedId]);
-
-  useEffect(() => {
-    settingsRef.current = settings;
-  }, [settings]);
 
   const pack = useMemo(
     () => PACKS.find((item) => item.id === activeId) ?? null,
@@ -83,7 +79,7 @@ export default function App() {
       id: entry.id,
       keys: [],
       label: entry.label,
-      category: "Custom",
+      category: 'Custom',
       insert: entry.insert,
       mention: entry.mention,
       mentionText: entry.mentionText,
@@ -95,7 +91,10 @@ export default function App() {
     const needle = query.trim().toLowerCase();
     const filtered = needle
       ? all.filter((shortcut) =>
-          [shortcut.label, shortcut.category].join(" ").toLowerCase().includes(needle),
+          [shortcut.label, shortcut.category]
+            .join(' ')
+            .toLowerCase()
+            .includes(needle),
         )
       : all;
 
@@ -108,38 +107,28 @@ export default function App() {
     return [...filtered].sort((a, b) => rank(a.id) - rank(b.id));
   }, [pack, query, settings]);
 
-  useEffect(() => {
-    shortcutsRef.current = shortcuts;
-  }, [shortcuts]);
-
-  useEffect(() => {
-    const preferred = pack ? settingsRef.current?.lastUsed?.[pack.id] : undefined;
-    const list = shortcutsRef.current;
-
-    if (preferred && list.some((item) => item.id === preferred)) {
-      setSelectedId(preferred);
-      setFollowSelection(true);
-      return;
+  const selectedId = useMemo(() => {
+    if (pendingId && shortcuts.some((item) => item.id === pendingId)) {
+      return pendingId;
     }
 
-    setSelectedId(list[0]?.id ?? null);
-  }, [openCount, pack]);
+    const preferred = pack ? settings?.lastUsed?.[pack.id] : undefined;
+    if (preferred && shortcuts.some((item) => item.id === preferred)) {
+      return preferred;
+    }
 
-  useEffect(() => {
-    setSelectedId((current) =>
-      current && shortcuts.some((item) => item.id === current)
-        ? current
-        : (shortcuts[0]?.id ?? null),
-    );
-  }, [shortcuts]);
+    return shortcuts[0]?.id ?? null;
+  }, [pendingId, shortcuts, pack, settings]);
 
   const activate = useCallback(
     async (shortcut: Shortcut) => {
+      await getCurrentWindow().hide();
+
       const own = shortcut.mentionText
         ? { text: shortcut.mentionText, html: shortcut.mentionHtml }
         : undefined;
       const mention = shortcut.mention ? (own ?? pack?.mention) : undefined;
-      const body = shortcut.insert ?? shortcut.keys.join(" ");
+      const body = shortcut.insert ?? shortcut.keys.join(' ');
       const text = mention ? `${mention.text} ${body}` : body;
 
       try {
@@ -153,20 +142,23 @@ export default function App() {
       }
 
       if (pack) {
-        void invoke<Settings>("set_last_used", { packId: pack.id, id: shortcut.id })
+        void invoke<Settings>('set_last_used', {
+          packId: pack.id,
+          id: shortcut.id,
+        })
           .then(setSettings)
           .catch(() => undefined);
       }
 
       try {
-        await invoke("insert_snippet", { mention: null, mentionDelayMs: MENTION_DELAY_MS });
+        await invoke('insert_snippet');
       } catch (reason) {
-        if (String(reason).includes("accessibility")) {
+        if (String(reason).includes('accessibility')) {
           setTrusted(false);
         } else {
           setError(String(reason));
         }
-        await invoke("dismiss").catch(() => undefined);
+        await invoke('dismiss').catch(() => undefined);
       }
     },
     [pack],
@@ -176,7 +168,7 @@ export default function App() {
     const onKeyDown = (event: KeyboardEvent) => {
       if (recording) {
         event.preventDefault();
-        if (event.key === "Escape") {
+        if (event.key === 'Escape') {
           setRecording(false);
           return;
         }
@@ -185,36 +177,38 @@ export default function App() {
           return;
         }
         setRecording(false);
-        invoke<Settings>("set_hotkey", { hotkey: next })
+        invoke<Settings>('set_hotkey', { hotkey: next })
           .then((next) => {
             setSettings(next);
-            setError("");
+            setError('');
           })
           .catch((reason) => setError(String(reason)));
         return;
       }
 
-      if (event.key === "Escape") {
-        void invoke("dismiss");
+      if (event.key === 'Escape') {
+        void invoke('dismiss');
         return;
       }
 
-      if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+      if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
         event.preventDefault();
-        const step = event.key === "ArrowDown" ? 1 : -1;
+        const step = event.key === 'ArrowDown' ? 1 : -1;
 
         const index = shortcuts.findIndex((item) => item.id === selectedId);
-        const next = shortcuts[(index + step + shortcuts.length) % shortcuts.length];
+        const next =
+          shortcuts[(index + step + shortcuts.length) % shortcuts.length];
         setFollowSelection(true);
-        setSelectedId(next?.id ?? null);
+        setPendingId(next?.id ?? null);
         return;
       }
 
-      if (event.key === "Tab") {
+      if (event.key === 'Tab') {
         event.preventDefault();
         const index = PACKS.findIndex((item) => item.id === activeId);
         const step = event.shiftKey ? -1 : 1;
-        const at = index === -1 ? 0 : (index + step + PACKS.length) % PACKS.length;
+        const at =
+          index === -1 ? 0 : (index + step + PACKS.length) % PACKS.length;
         setActiveId(PACKS[at].id);
         return;
       }
@@ -229,7 +223,7 @@ export default function App() {
         return;
       }
 
-      if (event.key === "Enter") {
+      if (event.key === 'Enter') {
         event.preventDefault();
         const selected = shortcuts.find((item) => item.id === selectedId);
         if (selected) {
@@ -238,31 +232,36 @@ export default function App() {
       }
     };
 
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [recording, shortcuts, selectedId, activeId, activate, settings]);
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [recording, shortcuts, selectedId, activeId, activate]);
 
   return (
-    <main className="flex h-full flex-col overflow-hidden rounded-2xl border border-hairline bg-surface font-sans text-base text-white/95 backdrop-blur-2xl">
+    <main className="border-hairline bg-surface flex h-full flex-col overflow-hidden rounded-2xl border font-sans text-base text-white/95 backdrop-blur-2xl">
       <header className="flex items-center justify-between gap-3 px-5 pt-4 pb-3">
         <div className="flex min-w-0 flex-col">
-          <span className="text-sm font-semibold tracking-tight">Pikmin Mention</span>
+          <span className="text-sm font-semibold tracking-tight">
+            Pikmin Mention
+          </span>
           <span className="truncate text-xs text-white/35">
-            {context?.hostname ?? context?.app ?? "No app detected"}
+            {context?.hostname ?? context?.app ?? 'No app detected'}
           </span>
         </div>
         <div className="flex items-center gap-1">
-          {!recording && settings?.hotkey && defaultHotkey && settings.hotkey !== defaultHotkey ? (
+          {!recording &&
+          settings?.hotkey &&
+          defaultHotkey &&
+          settings.hotkey !== defaultHotkey ? (
             <Button
               variant="ghost"
               size="icon"
               aria-label="Reset shortcut"
               title={`Reset to ${formatHotkey(defaultHotkey)}`}
               onClick={() => {
-                void invoke<Settings>("reset_hotkey")
+                void invoke<Settings>('reset_hotkey')
                   .then((next) => {
                     setSettings(next);
-                    setError("");
+                    setError('');
                   })
                   .catch((reason) => setError(String(reason)));
               }}
@@ -277,12 +276,17 @@ export default function App() {
             onClick={() => setRecording(true)}
             className="h-7 font-mono text-xs text-white/70"
           >
-            {recording ? "Press keys…" : formatHotkey(settings?.hotkey ?? "")}
+            {recording ? 'Press keys…' : formatHotkey(settings?.hotkey ?? '')}
           </Button>
         </div>
       </header>
 
-      <PackTabs packs={PACKS} activeId={activeId} matchedId={matchedId} onSelect={setActiveId} />
+      <PackTabs
+        packs={PACKS}
+        activeId={activeId}
+        matchedId={matchedId}
+        onSelect={setActiveId}
+      />
 
       <Input
         ref={searchRef}
@@ -290,7 +294,7 @@ export default function App() {
         value={query}
         onChange={(event) => setQuery(event.target.value)}
         placeholder="Search snippets"
-        className="rounded-none border-0 border-b border-hairline bg-transparent px-5 py-2.5 focus-visible:ring-0"
+        className="border-hairline rounded-none border-0 border-b bg-transparent px-5 py-2.5 focus-visible:ring-0"
       />
 
       <div className="flex-1 overflow-y-auto px-3 py-3">
@@ -298,7 +302,10 @@ export default function App() {
           <div className="flex h-full flex-col items-center justify-center gap-1 px-6 text-center">
             <p className="text-sm text-white/45">No pack for this app.</p>
             <p className="text-xs text-white/25">
-              {context?.app ? `${context.app} is not recognised` : "Unknown app"} — pick a tab above.
+              {context?.app
+                ? `${context.app} is not recognised`
+                : 'Unknown app'}{' '}
+              — pick a tab above.
             </p>
           </div>
         ) : shortcuts.length ? (
@@ -310,22 +317,28 @@ export default function App() {
             onActivate={activate}
             onHover={() => undefined}
             onTogglePin={(shortcut) => {
-              void invoke<Settings>("toggle_pin", { id: shortcut.id }).then(setSettings);
+              void invoke<Settings>('toggle_pin', { id: shortcut.id }).then(
+                setSettings,
+              );
             }}
             onReorder={(id, toIndex) => {
-              const pinned = (settings?.pinned ?? []).filter((value) => value !== id);
+              const pinned = (settings?.pinned ?? []).filter(
+                (value) => value !== id,
+              );
               pinned.splice(Math.min(toIndex, pinned.length), 0, id);
-              void invoke<Settings>("set_pinned", { pinned }).then(setSettings);
+              void invoke<Settings>('set_pinned', { pinned }).then(setSettings);
             }}
             onRemove={(shortcut) => {
-              void invoke<Settings>("remove_custom", {
+              void invoke<Settings>('remove_custom', {
                 packId: pack.id,
                 id: shortcut.id,
               }).then(setSettings);
             }}
           />
         ) : (
-          <p className="py-6 text-center text-sm text-white/35">No match.</p>
+          <p className="py-6 text-center text-sm text-white/35">
+            {query.trim() ? 'No match.' : 'No snippets yet.'}
+          </p>
         )}
       </div>
 
@@ -335,7 +348,7 @@ export default function App() {
           onCancel={() => setAdding(false)}
           onSubmit={(value) => {
             setAdding(false);
-            void invoke<Settings>("add_custom", {
+            void invoke<Settings>('add_custom', {
               packId: pack.id,
               label: value.label,
               insert: value.insert,
@@ -349,7 +362,7 @@ export default function App() {
         <Button
           variant="ghost"
           onClick={() => setAdding(true)}
-          className="justify-start rounded-none border-t border-hairline px-5 py-2 text-xs text-white/40"
+          className="border-hairline h-auto w-full justify-start rounded-none border-t px-5 py-2.5 text-xs text-white/40"
         >
           <Plus className="size-3.5" />
           Add custom
@@ -357,14 +370,14 @@ export default function App() {
       ) : null}
 
       {!trusted ? (
-        <div className="flex items-center justify-between gap-3 border-t border-hairline px-5 py-2.5">
+        <div className="border-hairline flex items-center justify-between gap-3 border-t px-5 py-2.5">
           <span className="text-xs text-white/45">
             Copied to clipboard. Enable Accessibility to paste automatically.
           </span>
           <Button
             size="sm"
             onClick={() => {
-              void invoke<boolean>("request_accessibility").then(setTrusted);
+              void invoke<boolean>('request_accessibility').then(setTrusted);
             }}
           >
             Grant access

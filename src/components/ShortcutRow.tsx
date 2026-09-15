@@ -1,6 +1,6 @@
-import { useEffect, useRef } from "react";
-import { Star, X } from "lucide-react";
-import type { Shortcut } from "@/types";
+import type { Shortcut } from '@/types';
+import { Star, X } from 'lucide-react';
+import { useEffect, useRef } from 'react';
 
 type Props = {
   shortcut: Shortcut;
@@ -42,7 +42,7 @@ export default function ShortcutRow({
 
   useEffect(() => {
     if (selected && followSelection) {
-      ref.current?.scrollIntoView({ block: "nearest" });
+      ref.current?.scrollIntoView({ block: 'nearest' });
     }
   }, [selected, followSelection]);
 
@@ -62,28 +62,32 @@ export default function ShortcutRow({
       onDragEnd={onDragEnd}
       onMouseEnter={onHover}
       onClick={onActivate}
-      className={`group flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 ${
+      className={`group flex cursor-pointer items-center gap-1.5 rounded-md py-1.5 pr-2 pl-1 ${
         selected
-          ? "bg-white/12 ring-1 ring-white/20 ring-inset"
-          : "hover:bg-white/5"
-      } ${dragging ? "opacity-30" : ""} ${dropTarget ? "border-t border-white/40" : "border-t border-transparent"}`}
+          ? 'bg-white/12 ring-1 ring-white/20 ring-inset'
+          : 'hover:bg-white/5'
+      } ${dragging ? 'opacity-30' : ''} ${dropTarget ? 'border-t border-white/40' : 'border-t border-transparent'}`}
     >
       <button
         type="button"
-        aria-label={pinned ? "Unpin" : "Pin"}
+        aria-label={pinned ? 'Unpin' : 'Pin'}
         onClick={(event) => {
           event.stopPropagation();
           onTogglePin();
         }}
-        className={`shrink-0 ${pinned ? "text-amber-300" : "text-white/20 hover:text-white/50"}`}
+        className={`-my-1 flex size-8 shrink-0 items-center justify-center rounded-md hover:bg-white/10 ${
+          pinned ? 'text-amber-300' : 'text-white/25 hover:text-white/60'
+        }`}
       >
-        <Star className="size-3.5" fill={pinned ? "currentColor" : "none"} />
+        <Star className="size-4" fill={pinned ? 'currentColor' : 'none'} />
       </button>
 
-      <span className="flex-1 truncate text-sm text-white/80">{shortcut.label}</span>
+      <span className="flex-1 truncate text-sm text-white/80">
+        {shortcut.label}
+      </span>
 
       {accelerator ? (
-        <kbd className="shrink-0 rounded border border-hairline bg-white/5 px-1.5 py-0.5 font-mono text-xs text-white/40">
+        <kbd className="border-hairline shrink-0 rounded border bg-white/5 px-1.5 py-0.5 font-mono text-xs text-white/40">
           ⌘{accelerator}
         </kbd>
       ) : null}
@@ -96,9 +100,9 @@ export default function ShortcutRow({
             event.stopPropagation();
             onRemove();
           }}
-          className="shrink-0 text-white/20 opacity-0 group-hover:opacity-100 hover:text-destructive"
+          className="hover:text-destructive -my-1 flex size-8 shrink-0 items-center justify-center rounded-md text-white/25 opacity-0 group-hover:opacity-100 hover:bg-white/10"
         >
-          <X className="size-3.5" />
+          <X className="size-4" />
         </button>
       ) : null}
     </li>

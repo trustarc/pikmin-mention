@@ -28,14 +28,14 @@ pub fn open_accessibility_settings() {}
 
 pub fn send_paste() {}
 
-pub fn send_return() {}
-
 pub fn send_newline() {}
-
-pub fn type_text(_text: &str) {}
 
 pub fn read_clipboard() -> Option<Clipboard> {
     None
 }
 
 pub fn watch_outside_clicks<F: Fn() + 'static>(_on_click: F) {}
+
+pub fn screen_click_point() -> Option<(f64, f64)> {
+    None
+}

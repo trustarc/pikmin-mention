@@ -1,7 +1,7 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
-  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --color-surface: rgb(28 28 30 / 0.92);
   --color-hairline: rgb(255 255 255 / 0.12);
 
@@ -46,8 +46,8 @@
   }
 
   button:not(:disabled),
-  label:has(input[type="checkbox"]),
-  input[type="checkbox"] {
+  label:has(input[type='checkbox']),
+  input[type='checkbox'] {
     cursor: pointer;
   }
 
@@ -55,7 +55,7 @@
     cursor: default;
   }
 
-  input[type="text"],
+  input[type='text'],
   input:not([type]) {
     cursor: text;
   }

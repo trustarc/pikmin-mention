@@ -29,7 +29,7 @@ strip = true
 
 [target.'cfg(target_os = "macos")'.dependencies]
 objc2 = "0.6"
-objc2-app-kit = { version = "0.3", features = ["NSWorkspace", "NSRunningApplication", "NSApplication", "NSEvent", "NSPasteboard", "block2"] }
+objc2-app-kit = { version = "0.3", features = ["NSWorkspace", "NSRunningApplication", "NSApplication", "NSEvent", "NSPasteboard", "NSScreen", "block2"] }
 block2 = "0.6"
 objc2-foundation = { version = "0.3", features = ["NSString"] }
 objc2-core-graphics = { version = "0.3", features = ["CGEvent", "CGEventTypes", "CGEventSource", "CGRemoteOperation"] }

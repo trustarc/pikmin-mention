@@ -1,9 +1,9 @@
-import { useState } from "react";
-import { invoke } from "@tauri-apps/api/core";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
-import type { Mention } from "@/types";
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
+import type { Mention } from '@/types';
+import { invoke } from '@tauri-apps/api/core';
+import { useState } from 'react';
 
 type Props = {
   packMention: Mention | undefined;
@@ -18,32 +18,35 @@ type Props = {
 };
 
 export default function CustomForm({ packMention, onCancel, onSubmit }: Props) {
-  const [label, setLabel] = useState("");
-  const [insert, setInsert] = useState("");
+  const [label, setLabel] = useState('');
+  const [insert, setInsert] = useState('');
   const [withMention, setWithMention] = useState(true);
   const [captured, setCaptured] = useState<Mention | null>(null);
-  const [notice, setNotice] = useState("");
+  const [notice, setNotice] = useState('');
 
   const mention = captured ?? packMention;
   const ready = label.trim() && insert.trim();
 
   const capture = async () => {
-    const clipboard = await invoke<{ text: string; html: string | null } | null>(
-      "read_clipboard_mention",
-    );
+    const clipboard = await invoke<{
+      text: string;
+      html: string | null;
+    } | null>('read_clipboard_mention');
 
     if (!clipboard?.text) {
-      setNotice("Clipboard is empty.");
+      setNotice('Clipboard is empty.');
       return;
     }
 
     setCaptured({ text: clipboard.text, html: clipboard.html ?? undefined });
     setWithMention(true);
-    setNotice(clipboard.html ? "" : "Plain text only — may not become a real mention.");
+    setNotice(
+      clipboard.html ? '' : 'Plain text only — may not become a real mention.',
+    );
   };
 
   return (
-    <div className="flex flex-col gap-2 border-t border-hairline px-5 py-3">
+    <div className="border-hairline flex flex-col gap-2 border-t px-5 py-3">
       <Input
         autoFocus
         value={label}
@@ -51,7 +54,7 @@ export default function CustomForm({ packMention, onCancel, onSubmit }: Props) {
         placeholder="Label"
       />
 
-      <div className="flex items-center gap-2 rounded-md border border-hairline bg-input px-2.5 py-1.5">
+      <div className="border-hairline bg-input flex items-center gap-2 rounded-md border px-2.5 py-1.5">
         {mention && withMention ? (
           <span className="shrink-0 rounded bg-white/15 px-1.5 py-0.5 font-mono text-xs text-white/70">
             {mention.text}
@@ -66,7 +69,7 @@ export default function CustomForm({ packMention, onCancel, onSubmit }: Props) {
       </div>
 
       <div className="flex items-center justify-between gap-2">
-        <label className="flex items-center gap-2 text-xs text-muted-foreground">
+        <label className="text-muted-foreground flex items-center gap-2 text-xs">
           <Checkbox
             checked={withMention}
             disabled={!mention}

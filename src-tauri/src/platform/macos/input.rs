@@ -1,8 +1,6 @@
 use std::ffi::c_void;
 use std::process::Command;
 use std::ptr;
-use std::thread;
-use std::time::Duration;
 
 use objc2_core_foundation::CFRetained;
 use objc2_core_graphics::{
@@ -11,7 +9,6 @@ use objc2_core_graphics::{
 
 const KEY_V: u16 = 9;
 const KEY_RETURN: u16 = 36;
-const TYPE_DELAY: Duration = Duration::from_millis(28);
 const SETTINGS_URL: &str =
     "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility";
 
@@ -85,35 +82,12 @@ fn tap_key(source: Option<&CGEventSource>, key: u16, flags: CGEventFlags) {
     }
 }
 
-fn tap_char(source: Option<&CGEventSource>, unit: u16) {
-    for down in [true, false] {
-        let Some(event) = CGEvent::new_keyboard_event(source, 0, down) else {
-            return;
-        };
-        unsafe { CGEvent::keyboard_set_unicode_string(Some(&event), 1, &unit) };
-        CGEvent::post(CGEventTapLocation::HIDEventTap, Some(&event));
-    }
-}
-
 pub fn send_paste() {
     let source = source();
     tap_key(source.as_deref(), KEY_V, CGEventFlags::MaskCommand);
 }
 
-pub fn send_return() {
-    let source = source();
-    tap_key(source.as_deref(), KEY_RETURN, CGEventFlags::empty());
-}
-
 pub fn send_newline() {
     let source = source();
     tap_key(source.as_deref(), KEY_RETURN, CGEventFlags::MaskShift);
-}
-
-pub fn type_text(text: &str) {
-    let source = source();
-    for unit in text.encode_utf16() {
-        tap_char(source.as_deref(), unit);
-        thread::sleep(TYPE_DELAY);
-    }
 }

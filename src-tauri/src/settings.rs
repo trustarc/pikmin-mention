@@ -7,7 +7,7 @@ use tauri::{AppHandle, Manager};
 
 use crate::hotkey;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct CustomShortcut {
     pub id: String,
@@ -61,17 +61,4 @@ pub fn load(app: &AppHandle) -> Settings {
 pub fn save(app: &AppHandle, settings: &Settings) -> Result<(), String> {
     let raw = serde_json::to_string_pretty(settings).map_err(|error| error.to_string())?;
     fs::write(file(app)?, raw).map_err(|error| error.to_string())
-}
-
-impl Default for CustomShortcut {
-    fn default() -> Self {
-        Self {
-            id: String::new(),
-            label: String::new(),
-            insert: String::new(),
-            mention: false,
-            mention_text: None,
-            mention_html: None,
-        }
-    }
 }

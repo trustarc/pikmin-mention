@@ -1,14 +1,18 @@
 {
   "name": "pikmin-mention",
   "private": true,
-  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "tauri": "tauri",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "bun test",
+    "test:watch": "bun test --watch",
+    "test:coverage": "bun test --coverage"
   },
   "dependencies": {
     "@tauri-apps/api": "^2",
@@ -25,10 +29,14 @@
   "devDependencies": {
     "@tailwindcss/vite": "4.3.3",
     "@tauri-apps/cli": "^2",
+    "@types/bun": "^1.4.2",
     "@types/node": "^26.5.1",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "@vitejs/plugin-react": "^6.0.2",
+    "prettier": "^3.9.6",
+    "prettier-plugin-organize-imports": "^4.3.0",
+    "prettier-plugin-tailwindcss": "^0.8.1",
     "tailwindcss": "4.3.3",
     "typescript": "~6.0.3",
     "vite": "^8.0.16"

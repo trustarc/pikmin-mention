@@ -22,3 +22,24 @@ pub fn hide(app: &AppHandle) -> tauri::Result<()> {
     }
     Ok(())
 }
+
+pub fn contains_point(window: &WebviewWindow, point: Option<(f64, f64)>) -> bool {
+    let Some((x, y)) = point else {
+        return false;
+    };
+
+    let (Ok(position), Ok(size), Ok(scale)) = (
+        window.outer_position(),
+        window.outer_size(),
+        window.scale_factor(),
+    ) else {
+        return false;
+    };
+
+    let left = position.x as f64 / scale;
+    let top = position.y as f64 / scale;
+    let right = left + size.width as f64 / scale;
+    let bottom = top + size.height as f64 / scale;
+
+    x >= left && x <= right && y >= top && y <= bottom
+}

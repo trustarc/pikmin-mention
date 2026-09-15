@@ -8,16 +8,17 @@ fn script_for(bundle_id: &str) -> Option<&'static str> {
         "com.microsoft.edgemac" => {
             Some(r#"tell application "Microsoft Edge" to get URL of active tab of front window"#)
         }
-        "com.apple.Safari" => {
-            Some(r#"tell application "Safari" to get URL of front document"#)
-        }
+        "com.apple.Safari" => Some(r#"tell application "Safari" to get URL of front document"#),
         _ => None,
     }
 }
 
 pub fn active_url(bundle_id: &str) -> Option<String> {
     let script = script_for(bundle_id)?;
-    let output = Command::new("osascript").args(["-e", script]).output().ok()?;
+    let output = Command::new("osascript")
+        .args(["-e", script])
+        .output()
+        .ok()?;
 
     if !output.status.success() {
         return None;

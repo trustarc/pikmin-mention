@@ -25,7 +25,10 @@
       "cn": [
         "./src/lib/utils.ts"
       ]
-    }
+    },
+    "types": [
+      "bun"
+    ]
   },
   "include": [
     "src"

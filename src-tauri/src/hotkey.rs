@@ -6,8 +6,7 @@ use tauri_plugin_global_shortcut::{GlobalShortcutExt, Shortcut, ShortcutState};
 use crate::{context, overlay};
 
 pub const DEFAULT: &str = "Super+Shift+Period";
-pub const LEGACY_DEFAULTS: &[&str] =
-    &["Control+Alt+KeyP", "Super+Alt+KeyP", "Alt+Shift+Period"];
+pub const LEGACY_DEFAULTS: &[&str] = &["Control+Alt+KeyP", "Super+Alt+KeyP", "Alt+Shift+Period"];
 
 pub fn parse(value: &str) -> Result<Shortcut, String> {
     Shortcut::from_str(value).map_err(|error| error.to_string())
@@ -32,7 +31,9 @@ pub fn register(app: &AppHandle, value: &str) -> Result<(), String> {
     eprintln!("[hotkey] registering {value:?} -> {shortcut:?}");
     let manager = app.global_shortcut();
 
-    manager.unregister_all().map_err(|error| error.to_string())?;
+    manager
+        .unregister_all()
+        .map_err(|error| error.to_string())?;
     manager
         .on_shortcut(shortcut, |app, _shortcut, event| {
             if event.state() == ShortcutState::Pressed {

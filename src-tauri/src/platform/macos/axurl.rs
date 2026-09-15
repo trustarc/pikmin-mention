@@ -60,7 +60,14 @@ fn to_string(value: CFTypeRef) -> Option<String> {
     }
 
     let mut buffer = [0u8; 2048];
-    let ok = unsafe { CFStringGetCString(value, buffer.as_mut_ptr(), buffer.len() as isize, 0x0800_0100) };
+    let ok = unsafe {
+        CFStringGetCString(
+            value,
+            buffer.as_mut_ptr(),
+            buffer.len() as isize,
+            0x0800_0100,
+        )
+    };
     if !ok {
         return None;
     }
