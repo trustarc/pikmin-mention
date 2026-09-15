@@ -45,7 +45,7 @@ pub fn capture() -> ActiveContext {
 
     let browser = browser_id(&front.bundle_id);
     let url = match browser {
-        Some("firefox") => platform::firefox_url(front.pid),
+        Some("firefox") => platform::browser_url_via_a11y(front.pid),
         Some(_) => platform::active_url(&front.bundle_id),
         None => None,
     };

@@ -44,4 +44,5 @@ export type Settings = {
   hotkey: string;
   pinned: string[];
   custom: Record<string, CustomShortcut[]>;
+  lastUsed: Record<string, string>;
 };

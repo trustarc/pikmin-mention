@@ -1,11 +1,7 @@
 use objc2_app_kit::{NSApplicationActivationOptions, NSRunningApplication, NSWorkspace};
 use objc2_foundation::NSString;
 
-pub struct Frontmost {
-    pub name: String,
-    pub bundle_id: String,
-    pub pid: i32,
-}
+use crate::platform::types::Frontmost;
 
 pub fn frontmost_app() -> Option<Frontmost> {
     let app = NSWorkspace::sharedWorkspace().frontmostApplication()?;

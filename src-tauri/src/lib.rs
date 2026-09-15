@@ -11,18 +11,23 @@ use context::{ActiveContext, ContextState};
 use settings::Settings;
 
 fn restore_focus(app: &AppHandle, state: &tauri::State<'_, ContextState>) {
+    eprintln!("[overlay] restore_focus called");
     let bundle_id = state
         .0
         .lock()
         .map(|current| current.bundle_id.clone())
         .unwrap_or_default();
 
-    let _ = overlay::hide(app);
+    match overlay::hide(app) {
+        Ok(()) => eprintln!("[overlay] hide ok"),
+        Err(error) => eprintln!("[overlay] hide failed: {error}"),
+    }
     platform::activate_app(&bundle_id);
 }
 
 #[tauri::command]
 fn dismiss(app: AppHandle, state: tauri::State<'_, ContextState>) {
+    eprintln!("[overlay] dismiss called");
     restore_focus(&app, &state);
 }
 
@@ -33,6 +38,7 @@ fn insert_snippet(
     mention: Option<String>,
     mention_delay_ms: u64,
 ) -> Result<(), String> {
+    eprintln!("[overlay] insert_snippet called");
     restore_focus(&app, &state);
 
     if !platform::accessibility_trusted() {
@@ -86,6 +92,14 @@ fn read_clipboard_mention() -> Option<ClipboardMention> {
         text: clipboard.text,
         html: clipboard.html,
     })
+}
+
+#[tauri::command]
+fn set_last_used(app: AppHandle, pack_id: String, id: String) -> Result<Settings, String> {
+    let mut settings = settings::load(&app);
+    settings.last_used.insert(pack_id, id);
+    settings::save(&app, &settings)?;
+    Ok(settings)
 }
 
 #[tauri::command]
@@ -219,6 +233,7 @@ pub fn run() {
             reset_hotkey,
             request_accessibility,
             set_hotkey,
+            set_last_used,
             set_pinned,
             toggle_pin
         ])

@@ -21,6 +21,9 @@ export default function App() {
   const [defaultHotkey, setDefaultHotkey] = useState("");
   const [followSelection, setFollowSelection] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
+  const [openCount, setOpenCount] = useState(0);
+  const settingsRef = useRef<Settings | null>(null);
+  const shortcutsRef = useRef<Shortcut[]>([]);
   const [query, setQuery] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [recording, setRecording] = useState(false);
@@ -45,6 +48,7 @@ export default function App() {
       if (focused) {
         searchRef.current?.focus();
         searchRef.current?.select();
+        setOpenCount((count) => count + 1);
       }
     });
 
@@ -57,6 +61,10 @@ export default function App() {
   useEffect(() => {
     setActiveId(matchedId);
   }, [matchedId]);
+
+  useEffect(() => {
+    settingsRef.current = settings;
+  }, [settings]);
 
   const pack = useMemo(
     () => PACKS.find((item) => item.id === activeId) ?? null,
@@ -98,6 +106,23 @@ export default function App() {
   }, [pack, query, settings]);
 
   useEffect(() => {
+    shortcutsRef.current = shortcuts;
+  }, [shortcuts]);
+
+  useEffect(() => {
+    const preferred = pack ? settingsRef.current?.lastUsed?.[pack.id] : undefined;
+    const list = shortcutsRef.current;
+
+    if (preferred && list.some((item) => item.id === preferred)) {
+      setSelectedId(preferred);
+      setFollowSelection(true);
+      return;
+    }
+
+    setSelectedId(list[0]?.id ?? null);
+  }, [openCount, pack]);
+
+  useEffect(() => {
     setSelectedId((current) =>
       current && shortcuts.some((item) => item.id === current)
         ? current
@@ -114,18 +139,31 @@ export default function App() {
       const body = shortcut.insert ?? shortcut.keys.join(" ");
       const text = mention ? `${mention.text} ${body}` : body;
 
-      if (mention?.html) {
-        await writeHtml(`${mention.html} ${body}`, text);
-      } else {
-        await writeText(text);
+      try {
+        if (mention?.html) {
+          await writeHtml(`${mention.html} ${body}`, text);
+        } else {
+          await writeText(text);
+        }
+      } catch (reason) {
+        setError(String(reason));
       }
-    try {
-      await invoke("insert_snippet", {
-          mention: null,
-          mentionDelayMs: MENTION_DELAY_MS,
-        });
-      } catch {
-        setTrusted(false);
+
+      if (pack) {
+        void invoke<Settings>("set_last_used", { packId: pack.id, id: shortcut.id })
+          .then(setSettings)
+          .catch(() => undefined);
+      }
+
+      try {
+        await invoke("insert_snippet", { mention: null, mentionDelayMs: MENTION_DELAY_MS });
+      } catch (reason) {
+        if (String(reason).includes("accessibility")) {
+          setTrusted(false);
+        } else {
+          setError(String(reason));
+        }
+        await invoke("dismiss").catch(() => undefined);
       }
     },
     [pack],
@@ -189,9 +227,10 @@ export default function App() {
       }
 
       if (event.key === "Enter") {
+        event.preventDefault();
         const selected = shortcuts.find((item) => item.id === selectedId);
         if (selected) {
-          void activate(selected);
+          void activate(selected).catch((reason) => setError(String(reason)));
         }
       }
     };
@@ -264,10 +303,7 @@ export default function App() {
             pinned={settings?.pinned ?? []}
             followSelection={followSelection}
             onActivate={activate}
-            onHover={(shortcut) => {
-              setFollowSelection(false);
-              setSelectedId(shortcut.id);
-            }}
+            onHover={() => undefined}
             onTogglePin={(shortcut) => {
               void invoke<Settings>("toggle_pin", { id: shortcut.id }).then(setSettings);
             }}

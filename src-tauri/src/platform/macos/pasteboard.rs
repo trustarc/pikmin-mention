@@ -1,9 +1,6 @@
 use objc2_app_kit::{NSPasteboard, NSPasteboardTypeHTML, NSPasteboardTypeString};
 
-pub struct Clipboard {
-    pub text: String,
-    pub html: Option<String>,
-}
+use crate::platform::types::Clipboard;
 
 pub fn read() -> Option<Clipboard> {
     let pasteboard = NSPasteboard::generalPasteboard();

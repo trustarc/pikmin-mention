@@ -27,6 +27,7 @@ pub struct Settings {
     pub hotkey: String,
     pub pinned: Vec<String>,
     pub custom: HashMap<String, Vec<CustomShortcut>>,
+    pub last_used: HashMap<String, String>,
 }
 
 impl Default for Settings {
@@ -35,6 +36,7 @@ impl Default for Settings {
             hotkey: hotkey::DEFAULT.to_string(),
             pinned: Vec::new(),
             custom: HashMap::new(),
+            last_used: HashMap::new(),
         }
     }
 }

@@ -62,7 +62,9 @@ export default function ShortcutRow({
       onMouseEnter={onHover}
       onClick={onActivate}
       className={`group flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 ${
-        selected ? "bg-white/10" : ""
+        selected
+          ? "bg-white/12 ring-1 ring-white/20 ring-inset"
+          : "hover:bg-white/5"
       } ${dragging ? "opacity-30" : ""} ${dropTarget ? "border-t border-white/40" : "border-t border-transparent"}`}
     >
       <button
