@@ -29,7 +29,7 @@ jobs:
           - os: macos-latest
             target: universal-apple-darwin
             rust-targets: aarch64-apple-darwin x86_64-apple-darwin
-            bundles: dmg
+            bundles: app,dmg
             artifacts: src-tauri/target/universal-apple-darwin/release/bundle/dmg/*.dmg
             updater: src-tauri/target/universal-apple-darwin/release/bundle/macos/*.app.tar.gz*
           - os: windows-latest
@@ -95,31 +95,55 @@ jobs:
 
       - name: Build latest.json
         env:
-          VERSION: ${{ github.ref_name }}
+          TAG: ${{ github.ref_name }}
         run: |
-          version="${VERSION#pikmin-mention==}"
-          base="https://github.com/${GITHUB_REPOSITORY}/releases/download/${VERSION}"
+          python3 - <<'PY'
+          import json, os, pathlib
 
-          platform() {
-            sig=$(find artifacts -name "$1" | head -1)
-            [ -n "$sig" ] || return 1
-            printf '"%s":{"signature":"%s","url":"%s/%s"}' \
-              "$2" "$(cat "$sig")" "$base" "$(basename "${sig%.sig}")"
+          tag = os.environ["TAG"]
+          version = tag.split("==", 1)[1]
+          base = f"https://github.com/{os.environ['GITHUB_REPOSITORY']}/releases/download/{tag}"
+
+          targets = {
+              "*.app.tar.gz.sig": ["darwin-aarch64", "darwin-x86_64"],
+              "*-setup.exe.sig": ["windows-x86_64"],
+              "*.AppImage.sig": ["linux-x86_64"],
           }
 
-          entries=""
-          for spec in "*.app.tar.gz.sig|darwin-universal" "*-setup.exe.sig|windows-x86_64" "*.AppImage.sig|linux-x86_64"; do
-            pattern="${spec%%|*}"
-            key="${spec##*|}"
-            if entry=$(platform "$pattern" "$key"); then
-              entries="${entries:+$entries,}$entry"
-            fi
-          done
+          platforms = {}
+          root = pathlib.Path("artifacts")
 
-          printf '{"version":"%s","pub_date":"%s","platforms":{%s}}' \
-            "$version" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$entries" > artifacts/latest.json
+          for pattern, keys in targets.items():
+              sig = next(iter(sorted(root.rglob(pattern))), None)
+              if sig is None:
+                  print(f"missing {pattern}")
+                  continue
 
-          cat artifacts/latest.json
+              asset = sig.name[: -len(".sig")].replace(" ", ".")
+              entry = {
+                  "signature": sig.read_text().strip(),
+                  "url": f"{base}/{asset}",
+              }
+              for key in keys:
+                  platforms[key] = entry
+
+          if not platforms:
+              raise SystemExit("no signed artifacts found")
+
+          pathlib.Path("artifacts/latest.json").write_text(
+              json.dumps(
+                  {
+                      "version": version,
+                      "pub_date": __import__("datetime")
+                      .datetime.now(__import__("datetime").timezone.utc)
+                      .strftime("%Y-%m-%dT%H:%M:%SZ"),
+                      "platforms": platforms,
+                  },
+                  indent=2,
+              )
+          )
+          print(json.dumps(platforms, indent=2)[:400])
+          PY
 
       - name: Create GitHub release
         env:

@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [1.0.5] - 2026-09-15
+
+- Fix the update feed. macOS was missing from it because the build only produced a `.dmg`, the platform keys did not match what the app looks for, and the asset URLs used the local filenames rather than the names GitHub assigns.
+
 ## [1.0.4] - 2026-09-15
 
 - Attach release assets as files. The previous run uploaded artifacts that kept their directory structure, so the release step tried to upload a directory and failed.
