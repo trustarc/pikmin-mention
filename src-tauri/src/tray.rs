@@ -1,12 +1,12 @@
 use tauri::menu::{Menu, MenuItem, PredefinedMenuItem};
 use tauri::tray::TrayIconBuilder;
-use tauri::AppHandle;
+use tauri::{AppHandle, Emitter};
 
 use crate::overlay;
 
 pub fn init(app: &AppHandle) -> tauri::Result<()> {
     let settings = MenuItem::with_id(app, "settings", "Open Settings", true, None::<&str>)?;
-    let updates = MenuItem::with_id(app, "updates", "Check for Updates", true, None::<&str>)?;
+    let updates = MenuItem::with_id(app, "updates", "Check for Updates…", true, None::<&str>)?;
     let quit = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
     let menu = Menu::with_items(
         app,
@@ -25,6 +25,10 @@ pub fn init(app: &AppHandle) -> tauri::Result<()> {
         .on_menu_event(|app, event| match event.id.as_ref() {
             "settings" => {
                 let _ = overlay::show(app);
+            }
+            "updates" => {
+                let _ = overlay::show(app);
+                let _ = app.emit("check-update", ());
             }
             "quit" => app.exit(0),
             _ => {}
