@@ -12,8 +12,6 @@ use windows::Win32::UI::WindowsAndMessaging::{
 
 use crate::platform::types::Frontmost;
 
-/// The window that was in front when the context was captured. Going back to
-/// it directly beats guessing from the process, which may own several windows.
 static LAST_FOREGROUND: AtomicIsize = AtomicIsize::new(0);
 
 fn process_path(pid: u32) -> Option<String> {
@@ -91,7 +89,10 @@ unsafe extern "system" fn find_window(window: HWND, param: LPARAM) -> windows::c
 pub(super) fn remembered_window(pid: u32) -> Option<HWND> {
     let window = HWND(LAST_FOREGROUND.load(Ordering::Relaxed) as *mut c_void);
 
-    if window.is_invalid() || !unsafe { IsWindow(Some(window)) }.as_bool() {
+    if window.is_invalid()
+        || !unsafe { IsWindow(Some(window)) }.as_bool()
+        || !unsafe { IsWindowVisible(window) }.as_bool()
+    {
         return None;
     }
 

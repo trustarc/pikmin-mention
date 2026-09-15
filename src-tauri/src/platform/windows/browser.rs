@@ -20,9 +20,6 @@ fn looks_like_url(value: &str) -> bool {
     !trimmed.is_empty() && !trimmed.contains(' ') && trimmed.contains('.')
 }
 
-/// The address bar is the first text field in a browser window's tree, ahead
-/// of the page. Chrome and Edge expose it as an edit control, Firefox as a
-/// combo box.
 fn address_bar(automation: &IUIAutomation, window: HWND) -> Option<String> {
     unsafe {
         let root = automation.ElementFromHandle(window).ok()?;
@@ -95,15 +92,10 @@ pub fn browser_url_via_a11y(pid: i32) -> Option<String> {
     }
     let pid = pid as u32;
 
-    // Browsers own several top-level windows, most of them hidden helpers
-    // with no address bar. The window that was in front is the one the user
-    // is looking at, so read that first and only then the other visible ones.
-    let mut candidates: Vec<HWND> = remembered_window(pid).into_iter().collect();
-    for window in visible_windows(pid) {
-        if !candidates.contains(&window) {
-            candidates.push(window);
-        }
-    }
+    let candidates = match remembered_window(pid) {
+        Some(window) => vec![window],
+        None => visible_windows(pid),
+    };
 
     if candidates.is_empty() {
         return None;

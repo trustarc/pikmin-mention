@@ -6,10 +6,6 @@ use windows::Win32::UI::WindowsAndMessaging::{
     WM_MBUTTONDOWN, WM_RBUTTONDOWN,
 };
 
-/// `GetCursorPos` reports physical pixels in the virtual screen, the same
-/// space as the window geometry, so no scaling applies when comparing them.
-pub const CURSOR_IS_PHYSICAL: bool = true;
-
 type Callback = Box<dyn Fn() + Send + Sync>;
 
 static HANDLER: OnceLock<Callback> = OnceLock::new();

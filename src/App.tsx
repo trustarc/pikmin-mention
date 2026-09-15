@@ -76,9 +76,6 @@ export default function App() {
 
     const unlistenContext = listen<ActiveContext>('context', (event) => {
       setContext(event.payload);
-      // Return to the matched pack on every opening, even when it is the
-      // same as last time, so a tab picked by hand does not stick around.
-      setActiveId(resolveContext(event.payload)?.id ?? null);
       setQuery('');
       setAdding(false);
       setUpdate('');
@@ -103,7 +100,7 @@ export default function App() {
 
   useEffect(() => {
     setActiveId(matchedId);
-  }, [matchedId]);
+  }, [context, matchedId]);
 
   const pack = useMemo(
     () => PACKS.find((item) => item.id === activeId) ?? null,
@@ -338,8 +335,6 @@ export default function App() {
         matchedId={matchedId}
         onSelect={(id) => {
           setActiveId(id);
-          // Clicking a tab focuses it; give the search box focus back so
-          // typing keeps filtering.
           requestAnimationFrame(() => searchRef.current?.focus());
         }}
       />

@@ -34,8 +34,6 @@ pub fn read_clipboard() -> Option<Clipboard> {
     None
 }
 
-pub const CURSOR_IS_PHYSICAL: bool = false;
-
 pub fn watch_outside_clicks<F: Fn() + Send + Sync + 'static>(_on_click: F) {}
 
 pub fn screen_click_point() -> Option<(f64, f64)> {

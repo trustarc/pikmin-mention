@@ -18,9 +18,6 @@ export default function PackTabs({
     <Tabs
       value={activeId ?? ''}
       onValueChange={onSelect}
-      // Only clicks pick a tab. In automatic mode a trigger also activates on
-      // focus, and the webview hands focus back to the last clicked trigger
-      // when the overlay reopens, undoing the reset to the matched pack.
       activationMode="manual"
       className="border-hairline border-b px-3 py-2"
     >
