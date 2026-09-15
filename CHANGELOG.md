@@ -2,11 +2,14 @@
 
 ## [Unreleased]
 
+## [1.0.3] - 2026-09-15
+
+- Sign the macOS app while it is bundled, so the `.dmg` carries the signature too. The previous release signed the app after the `.dmg` was already built, which had no effect.
+
 ## [1.0.2] - 2026-09-15
 
 - Update from inside the app: **Check for Updates…** in the tray downloads and installs a signed release, then restarts.
 - Show the version in the overlay header.
-- Sign macOS bundles with a stable identity so the Accessibility grant survives reinstalls.
 
 ## [1.0.1] - 2026-09-15
 
