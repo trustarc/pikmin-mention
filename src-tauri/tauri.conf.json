@@ -46,6 +46,15 @@
     ],
     "macOS": {
       "minimumSystemVersion": "10.15"
+    },
+    "createUpdaterArtifacts": true
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEY0QTRBMzQ4OEY4RDE0MDkKUldRSkZJMlBTS09rOU93QVN3S3FKVUlRZnpHcW1ZTDlYWG9Qb1FEeCs5bmhPbElZTFFlb0Z4aEEK",
+      "endpoints": [
+        "https://github.com/trustarc/pikmin-mention/releases/latest/download/latest.json"
+      ]
     }
   }
 }

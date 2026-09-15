@@ -31,16 +31,19 @@ jobs:
             rust-targets: aarch64-apple-darwin x86_64-apple-darwin
             bundles: dmg
             artifacts: src-tauri/target/universal-apple-darwin/release/bundle/dmg/*.dmg
+            updater: src-tauri/target/universal-apple-darwin/release/bundle/macos/*.app.tar.gz*
           - os: windows-latest
             target: x86_64-pc-windows-msvc
             rust-targets: x86_64-pc-windows-msvc
             bundles: nsis
             artifacts: src-tauri/target/x86_64-pc-windows-msvc/release/bundle/nsis/*.exe
+            updater: src-tauri/target/x86_64-pc-windows-msvc/release/bundle/nsis/*.sig
           - os: ubuntu-22.04
             target: x86_64-unknown-linux-gnu
             rust-targets: x86_64-unknown-linux-gnu
             bundles: appimage
             artifacts: src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/*.AppImage
+            updater: src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/*.sig
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -64,11 +67,22 @@ jobs:
       - run: bun install --frozen-lockfile
 
       - run: bun run tauri build --target ${{ matrix.target }} --bundles ${{ matrix.bundles }}
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ''
+
+      - name: Re-sign the macOS bundle with a stable ad-hoc identity
+        if: runner.os == 'macOS'
+        run: |
+          APP=$(find src-tauri/target -name '*.app' -maxdepth 6 | head -1)
+          codesign --force --deep -s - "$APP"
 
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.target }}
-          path: ${{ matrix.artifacts }}
+          path: |
+            ${{ matrix.artifacts }}
+            ${{ matrix.updater }}
 
   release:
     needs: build
@@ -84,6 +98,34 @@ jobs:
         with:
           path: artifacts
           merge-multiple: true
+
+      - name: Build latest.json
+        env:
+          VERSION: ${{ github.ref_name }}
+        run: |
+          version="${VERSION#pikmin-mention==}"
+          base="https://github.com/${GITHUB_REPOSITORY}/releases/download/${VERSION}"
+
+          platform() {
+            sig=$(find artifacts -name "$1" | head -1)
+            [ -n "$sig" ] || return 1
+            printf '"%s":{"signature":"%s","url":"%s/%s"}' \
+              "$2" "$(cat "$sig")" "$base" "$(basename "${sig%.sig}")"
+          }
+
+          entries=""
+          for spec in "*.app.tar.gz.sig|darwin-universal" "*-setup.exe.sig|windows-x86_64" "*.AppImage.sig|linux-x86_64"; do
+            pattern="${spec%%|*}"
+            key="${spec##*|}"
+            if entry=$(platform "$pattern" "$key"); then
+              entries="${entries:+$entries,}$entry"
+            fi
+          done
+
+          printf '{"version":"%s","pub_date":"%s","platforms":{%s}}' \
+            "$version" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$entries" > artifacts/latest.json
+
+          cat artifacts/latest.json
 
       - name: Create GitHub release
         env:

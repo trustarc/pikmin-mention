@@ -11,6 +11,9 @@
     "core:window:allow-show",
     "core:window:allow-set-focus",
     "clipboard-manager:allow-write-text",
-    "clipboard-manager:allow-write-html"
+    "clipboard-manager:allow-write-html",
+    "opener:allow-open-url",
+    "updater:default",
+    "process:allow-restart"
   ]
 }

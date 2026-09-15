@@ -11,6 +11,8 @@ import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { writeHtml, writeText } from '@tauri-apps/plugin-clipboard-manager';
+import { relaunch } from '@tauri-apps/plugin-process';
+import { check } from '@tauri-apps/plugin-updater';
 import { Plus, RotateCcw } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
@@ -21,6 +23,7 @@ export default function App() {
   const [adding, setAdding] = useState(false);
   const [defaultHotkey, setDefaultHotkey] = useState('');
   const [mac, setMac] = useState(true);
+  const [update, setUpdate] = useState('');
   const [followSelection, setFollowSelection] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState('');
@@ -41,10 +44,29 @@ export default function App() {
     void invoke<boolean>('is_macos').then(setMac);
     void invoke<ActiveContext>('get_active_context').then(setContext);
 
+    const unlistenUpdate = listen('check-update', () => {
+      setUpdate('Checking for updates…');
+
+      void check()
+        .then(async (found) => {
+          if (!found) {
+            setUpdate('You are on the latest version.');
+            return;
+          }
+
+          setUpdate(`Downloading ${found.version}…`);
+          await found.downloadAndInstall();
+          setUpdate('Restarting…');
+          await relaunch();
+        })
+        .catch((reason) => setUpdate(`Update failed: ${reason}`));
+    });
+
     const unlistenContext = listen<ActiveContext>('context', (event) => {
       setContext(event.payload);
       setQuery('');
       setAdding(false);
+      setUpdate('');
     });
 
     const unlistenFocus = getCurrentWindow().onFocusChanged(
@@ -59,6 +81,7 @@ export default function App() {
 
     return () => {
       void unlistenContext.then((off) => off());
+      void unlistenUpdate.then((off) => off());
       void unlistenFocus.then((off) => off());
     };
   }, []);
@@ -396,6 +419,12 @@ export default function App() {
             Grant access
           </Button>
         </div>
+      ) : null}
+
+      {update ? (
+        <p className="border-hairline border-t px-5 py-2.5 text-xs text-white/60">
+          {update}
+        </p>
       ) : null}
 
       {error ? <p className="px-5 pb-3 text-xs text-red-400">{error}</p> : null}
