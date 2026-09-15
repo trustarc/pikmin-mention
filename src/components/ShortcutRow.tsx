@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
-import type { Shortcut } from "../types";
+import { Star, X } from "lucide-react";
+import type { Shortcut } from "@/types";
 
 type Props = {
   shortcut: Shortcut;
@@ -74,11 +75,9 @@ export default function ShortcutRow({
           event.stopPropagation();
           onTogglePin();
         }}
-        className={`shrink-0 text-sm ${
-          pinned ? "text-amber-300" : "text-white/20 hover:text-white/50"
-        }`}
+        className={`shrink-0 ${pinned ? "text-amber-300" : "text-white/20 hover:text-white/50"}`}
       >
-        {pinned ? "★" : "☆"}
+        <Star className="size-3.5" fill={pinned ? "currentColor" : "none"} />
       </button>
 
       <span className="flex-1 truncate text-sm text-white/80">{shortcut.label}</span>
@@ -97,9 +96,9 @@ export default function ShortcutRow({
             event.stopPropagation();
             onRemove();
           }}
-          className="shrink-0 text-xs text-white/20 opacity-0 group-hover:opacity-100 hover:text-red-400"
+          className="shrink-0 text-white/20 opacity-0 group-hover:opacity-100 hover:text-destructive"
         >
-          ✕
+          <X className="size-3.5" />
         </button>
       ) : null}
     </li>

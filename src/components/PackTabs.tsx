@@ -1,4 +1,5 @@
-import type { Pack } from "../types";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import type { Pack } from "@/types";
 
 type Props = {
   packs: Pack[];
@@ -9,23 +10,19 @@ type Props = {
 
 export default function PackTabs({ packs, activeId, matchedId, onSelect }: Props) {
   return (
-    <nav className="flex gap-1 border-b border-hairline px-3 py-2">
-      {packs.map((pack) => {
-        const active = pack.id === activeId;
-        return (
-          <button
+    <Tabs value={activeId ?? ""} onValueChange={onSelect} className="border-b border-hairline px-3 py-2">
+      <TabsList className="bg-transparent p-0">
+        {packs.map((pack) => (
+          <TabsTrigger
             key={pack.id}
-            type="button"
-            onClick={() => onSelect(pack.id)}
-            className={`flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${
-              active ? "bg-white/15 text-white" : "text-white/45 hover:bg-white/5 hover:text-white/70"
-            }`}
+            value={pack.id}
+            className="gap-1.5 border-0 text-white/45 data-[state=active]:bg-white/15 data-[state=active]:text-white"
           >
             {pack.name}
             {pack.id === matchedId ? <span className="size-1 rounded-full bg-emerald-400" /> : null}
-          </button>
-        );
-      })}
-    </nav>
+          </TabsTrigger>
+        ))}
+      </TabsList>
+    </Tabs>
   );
 }

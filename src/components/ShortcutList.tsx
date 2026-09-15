@@ -1,6 +1,6 @@
 import { useState } from "react";
-import ShortcutRow from "./ShortcutRow";
-import type { Shortcut } from "../types";
+import ShortcutRow from "@/components/ShortcutRow";
+import type { Shortcut } from "@/types";
 
 type Props = {
   shortcuts: Shortcut[];

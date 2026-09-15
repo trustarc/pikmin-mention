@@ -3,13 +3,16 @@ import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { writeHtml, writeText } from "@tauri-apps/plugin-clipboard-manager";
-import CustomForm from "./components/CustomForm";
-import PackTabs from "./components/PackTabs";
-import ShortcutList from "./components/ShortcutList";
-import { resolveContext } from "./context/resolveContext";
-import { formatHotkey, toShortcut } from "./hotkey";
-import { PACKS } from "./packs/packLoader";
-import type { ActiveContext, Settings, Shortcut } from "./types";
+import CustomForm from "@/components/CustomForm";
+import PackTabs from "@/components/PackTabs";
+import ShortcutList from "@/components/ShortcutList";
+import { resolveContext } from "@/context/resolveContext";
+import { Plus, RotateCcw } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { formatHotkey, toShortcut } from "@/hotkey";
+import { PACKS } from "@/packs/packLoader";
+import type { ActiveContext, Settings, Shortcut } from "@/types";
 
 const MENTION_DELAY_MS = 700;
 
@@ -250,8 +253,9 @@ export default function App() {
         </div>
         <div className="flex items-center gap-1">
           {!recording && settings?.hotkey && defaultHotkey && settings.hotkey !== defaultHotkey ? (
-            <button
-              type="button"
+            <Button
+              variant="ghost"
+              size="icon"
               aria-label="Reset shortcut"
               title={`Reset to ${formatHotkey(defaultHotkey)}`}
               onClick={() => {
@@ -262,30 +266,31 @@ export default function App() {
                   })
                   .catch((reason) => setError(String(reason)));
               }}
-              className="rounded-md px-1.5 py-1 text-xs text-white/35 hover:bg-white/10 hover:text-white/70"
+              className="size-7 text-white/35"
             >
-              ⟲
-            </button>
+              <RotateCcw className="size-3.5" />
+            </Button>
           ) : null}
-          <button
-            type="button"
+          <Button
+            variant="outline"
+            size="sm"
             onClick={() => setRecording(true)}
-            className="rounded-md border border-hairline px-2 py-1 font-mono text-xs text-white/70 hover:bg-white/10"
+            className="h-7 font-mono text-xs text-white/70"
           >
             {recording ? "Press keys…" : formatHotkey(settings?.hotkey ?? "")}
-          </button>
+          </Button>
         </div>
       </header>
 
       <PackTabs packs={PACKS} activeId={activeId} matchedId={matchedId} onSelect={setActiveId} />
 
-      <input
+      <Input
         ref={searchRef}
         autoFocus
         value={query}
         onChange={(event) => setQuery(event.target.value)}
-        placeholder="Search shortcuts"
-        className="border-b border-hairline bg-transparent px-5 py-2.5 text-sm text-white/90 outline-none placeholder:text-white/30"
+        placeholder="Search snippets"
+        className="rounded-none border-0 border-b border-hairline bg-transparent px-5 py-2.5 focus-visible:ring-0"
       />
 
       <div className="flex-1 overflow-y-auto px-3 py-3">
@@ -341,13 +346,14 @@ export default function App() {
           }}
         />
       ) : pack ? (
-        <button
-          type="button"
+        <Button
+          variant="ghost"
           onClick={() => setAdding(true)}
-          className="border-t border-hairline px-5 py-2 text-left text-xs text-white/40 hover:bg-white/5 hover:text-white/70"
+          className="justify-start rounded-none border-t border-hairline px-5 py-2 text-xs text-white/40"
         >
-          + Add custom
-        </button>
+          <Plus className="size-3.5" />
+          Add custom
+        </Button>
       ) : null}
 
       {!trusted ? (
@@ -355,15 +361,14 @@ export default function App() {
           <span className="text-xs text-white/45">
             Copied to clipboard. Enable Accessibility to paste automatically.
           </span>
-          <button
-            type="button"
+          <Button
+            size="sm"
             onClick={() => {
               void invoke<boolean>("request_accessibility").then(setTrusted);
             }}
-            className="shrink-0 rounded-md border border-hairline bg-white/10 px-2.5 py-1 text-xs font-medium text-white/85 hover:bg-white/15"
           >
             Grant access
-          </button>
+          </Button>
         </div>
       ) : null}
 

@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import type { Mention } from "../types";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import type { Mention } from "@/types";
 
 type Props = {
   packMention: Mention | undefined;
@@ -41,15 +44,14 @@ export default function CustomForm({ packMention, onCancel, onSubmit }: Props) {
 
   return (
     <div className="flex flex-col gap-2 border-t border-hairline px-5 py-3">
-      <input
+      <Input
         autoFocus
         value={label}
         onChange={(event) => setLabel(event.target.value)}
         placeholder="Label"
-        className="rounded-md border border-hairline bg-white/5 px-2.5 py-1.5 text-sm text-white/90 outline-none placeholder:text-white/30"
       />
 
-      <div className="flex items-center gap-2 rounded-md border border-hairline bg-white/5 px-2.5 py-1.5">
+      <div className="flex items-center gap-2 rounded-md border border-hairline bg-input px-2.5 py-1.5">
         {mention && withMention ? (
           <span className="shrink-0 rounded bg-white/15 px-1.5 py-0.5 font-mono text-xs text-white/70">
             {mention.text}
@@ -64,38 +66,28 @@ export default function CustomForm({ packMention, onCancel, onSubmit }: Props) {
       </div>
 
       <div className="flex items-center justify-between gap-2">
-        <label className="flex cursor-pointer items-center gap-2 text-xs text-white/45">
-          <input
-            type="checkbox"
+        <label className="flex items-center gap-2 text-xs text-muted-foreground">
+          <Checkbox
             checked={withMention}
             disabled={!mention}
-            onChange={(event) => setWithMention(event.target.checked)}
-            className="accent-white/60"
+            onCheckedChange={(value) => setWithMention(value === true)}
           />
           Prepend mention
         </label>
 
-        <button
-          type="button"
-          onClick={() => void capture()}
-          className="rounded-md border border-hairline px-2 py-1 text-xs text-white/50 hover:bg-white/10 hover:text-white/80"
-        >
+        <Button variant="outline" size="sm" onClick={() => void capture()}>
           Use mention from clipboard
-        </button>
+        </Button>
       </div>
 
       {notice ? <p className="text-xs text-amber-300/70">{notice}</p> : null}
 
       <div className="flex justify-end gap-2">
-        <button
-          type="button"
-          onClick={onCancel}
-          className="rounded-md px-2.5 py-1 text-xs text-white/50 hover:text-white/80"
-        >
+        <Button variant="ghost" size="sm" onClick={onCancel}>
           Cancel
-        </button>
-        <button
-          type="button"
+        </Button>
+        <Button
+          size="sm"
           disabled={!ready}
           onClick={() =>
             onSubmit({
@@ -106,10 +98,9 @@ export default function CustomForm({ packMention, onCancel, onSubmit }: Props) {
               mentionHtml: captured?.html,
             })
           }
-          className="rounded-md border border-hairline bg-white/10 px-2.5 py-1 text-xs text-white/85 disabled:opacity-30 hover:bg-white/15"
         >
           Add
-        </button>
+        </Button>
       </div>
     </div>
   );
