@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [1.0.9] - 2026-09-15
+
+- Read the address again in Firefox. Its URL bar is a combo box, not a text field, so the lookup found nothing and every page fell back to the default pack.
+
 ## [1.0.8] - 2026-09-15
 
 - Share the CI dependency cache across versions. The key included the manifest hash, so every release missed the cache it had just written.
