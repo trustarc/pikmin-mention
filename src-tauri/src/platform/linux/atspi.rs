@@ -8,6 +8,8 @@ const ROOT: &str = "/org/a11y/atspi/accessible/root";
 const ACCESSIBLE: &str = "org.a11y.atspi.Accessible";
 const TEXT: &str = "org.a11y.atspi.Text";
 
+const ADDRESS_BAR_ROLES: &[&str] = &["entry", "combo box"];
+
 const MAX_DEPTH: usize = 10;
 const MAX_NODES: usize = 1500;
 
@@ -60,6 +62,12 @@ fn children(conn: &Connection, target: &Reference) -> Vec<Reference> {
         .unwrap_or_default()
 }
 
+fn role_of(conn: &Connection, target: &Reference) -> Option<String> {
+    let path = ObjectPath::try_from(target.1.as_str()).ok()?;
+    let accessible = proxy(conn, &target.0, &path, ACCESSIBLE)?;
+    accessible.call::<_, _, String>("GetRoleName", &()).ok()
+}
+
 fn text_of(conn: &Connection, target: &Reference) -> Option<String> {
     let path = ObjectPath::try_from(target.1.as_str()).ok()?;
     let text = proxy(conn, &target.0, &path, TEXT)?;
@@ -68,7 +76,7 @@ fn text_of(conn: &Connection, target: &Reference) -> Option<String> {
 
 fn looks_like_url(value: &str) -> bool {
     let trimmed = value.trim();
-    !trimmed.is_empty() && !trimmed.contains(' ') && trimmed.contains('.')
+    !trimmed.is_empty() && !trimmed.contains(' ') && !trimmed.contains('@') && trimmed.contains('.')
 }
 
 fn find_url(
@@ -82,8 +90,13 @@ fn find_url(
     }
     *budget -= 1;
 
-    if let Some(found) = text_of(conn, target).filter(|value| looks_like_url(value)) {
-        return Some(found);
+    let is_address_bar =
+        role_of(conn, target).is_some_and(|role| ADDRESS_BAR_ROLES.contains(&role.as_str()));
+
+    if is_address_bar {
+        if let Some(found) = text_of(conn, target).filter(|value| looks_like_url(value)) {
+            return Some(found);
+        }
     }
 
     for child in children(conn, target) {

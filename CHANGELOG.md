@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+## [1.0.11] - 2026-09-15
+
+- Linux: go back to the exact window that was in front before pasting, rather than the first window the process owns.
+- Linux: read the address only from an entry or combo box. The lookup took the first text anywhere in the browser that had a dot in it, so a link or an address written on the page could be reported as the current site.
+
 ## [1.0.10] - 2026-09-15
 
 - Windows: clicking inside the overlay no longer closes it. The outside-click check scaled the window bounds down to logical points while the cursor already comes in physical pixels, so on any display above 100% every click counted as outside. The same applied to X11.
