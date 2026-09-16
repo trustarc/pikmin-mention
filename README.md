@@ -38,7 +38,7 @@ On Windows and Linux use `Ctrl` wherever this says `Cmd`.
 
 |                 |                    |
 | --------------- | ------------------ |
-| `Cmd+Shift+.`   | Open or close      |
+| `Cmd+Shift+,`   | Open or close      |
 | type            | Filter             |
 | `↑` `↓` `Enter` | Select and insert  |
 | `Cmd+1`–`Cmd+9` | Insert by position |

@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [1.0.12] - 2026-09-16
+
+- Open the overlay with `Cmd+Shift+,` (`Ctrl+Shift+,` elsewhere). `Cmd+Shift+.` toggles hidden files in Finder and is taken by Ask Arc's debug mode. A hotkey picked by hand is left alone; anyone still on a former default moves across.
+
 ## [1.0.11] - 2026-09-15
 
 - Linux: go back to the exact window that was in front before pasting, rather than the first window the process owns.
