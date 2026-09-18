@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [1.0.13] - 2026-09-18
+
+- Mention the Pikmin user account in Jira. Pikmin moved from a service account to a user account, so the mention carried an account id that no longer resolves — @Pikmin pasted as plain text and the bot was never notified.
+
 ## [1.0.12] - 2026-09-16
 
 - Open the overlay with `Cmd+Shift+,` (`Ctrl+Shift+,` elsewhere). `Cmd+Shift+.` toggles hidden files in Finder and is taken by Ask Arc's debug mode. A hotkey picked by hand is left alone; anyone still on a former default moves across.
