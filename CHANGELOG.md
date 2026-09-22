@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [1.0.14] - 2026-09-22
+
+- Offer `gpt-6-sol` in place of `gpt-5.6-sol`. GPT-6 replaces the 5.6 line, so the old entries named a model Pikmin no longer runs.
+
 ## [1.0.13] - 2026-09-18
 
 - Mention the Pikmin user account in Jira. Pikmin moved from a service account to a user account, so the mention carried an account id that no longer resolves — @Pikmin pasted as plain text and the bot was never notified.
