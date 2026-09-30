@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [1.0.15] - 2026-09-30
+
+- Offer `gpt-6.1-sol` in place of `gpt-6-sol`.
+
 ## [1.0.14] - 2026-09-22
 
 - Offer `gpt-6-sol` in place of `gpt-5.6-sol`. GPT-6 replaces the 5.6 line, so the old entries named a model Pikmin no longer runs.
