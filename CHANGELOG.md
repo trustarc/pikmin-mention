@@ -4,7 +4,7 @@
 
 ## [1.0.15] - 2026-09-30
 
-- Offer `gpt-6.1-sol` in place of `gpt-6-sol` and `gpt-6-astra`. GPT-6.1 replaces the GPT-6 line.
+- Offer `gpt-6.1-sol` in place of `gpt-6-sol`.
 
 ## [1.0.14] - 2026-09-22
 

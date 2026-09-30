@@ -50,6 +50,41 @@
       "insert": "--model gpt-6.1-sol --effort max"
     },
     {
+      "id": "pikmin-gpt-6-astra-low",
+      "label": "gpt-6-astra \u00b7 low",
+      "category": "Pikmin",
+      "mention": true,
+      "insert": "--model gpt-6-astra --effort low"
+    },
+    {
+      "id": "pikmin-gpt-6-astra-medium",
+      "label": "gpt-6-astra \u00b7 medium",
+      "category": "Pikmin",
+      "mention": true,
+      "insert": "--model gpt-6-astra --effort medium"
+    },
+    {
+      "id": "pikmin-gpt-6-astra-high",
+      "label": "gpt-6-astra \u00b7 high",
+      "category": "Pikmin",
+      "mention": true,
+      "insert": "--model gpt-6-astra --effort high"
+    },
+    {
+      "id": "pikmin-gpt-6-astra-xhigh",
+      "label": "gpt-6-astra \u00b7 xhigh",
+      "category": "Pikmin",
+      "mention": true,
+      "insert": "--model gpt-6-astra --effort xhigh"
+    },
+    {
+      "id": "pikmin-gpt-6-astra-max",
+      "label": "gpt-6-astra \u00b7 max",
+      "category": "Pikmin",
+      "mention": true,
+      "insert": "--model gpt-6-astra --effort max"
+    },
+    {
       "id": "pikmin-opus-low",
       "label": "opus \u00b7 low",
       "category": "Pikmin",
