@@ -83,3 +83,14 @@ pub fn refresh(app: &AppHandle) {
 
     let _ = app.emit("context", captured);
 }
+
+#[cfg(test)]
+mod tests {
+    use super::browser_id;
+
+    #[test]
+    fn recognises_ego_and_aside() {
+        assert_eq!(browser_id("com.citrolabs.ego.lite"), Some("ego"));
+        assert_eq!(browser_id("at.studio.AsideBrowser"), Some("aside"));
+    }
+}
