@@ -9,6 +9,12 @@ fn script_for(bundle_id: &str) -> Option<&'static str> {
             Some(r#"tell application "Microsoft Edge" to get URL of active tab of front window"#)
         }
         "com.apple.Safari" => Some(r#"tell application "Safari" to get URL of front document"#),
+        "com.citrolabs.ego.lite" => {
+            Some(r#"tell application "ego lite" to get URL of active tab of front window"#)
+        }
+        "at.studio.AsideBrowser" => {
+            Some(r#"tell application "Aside" to get URL of active tab of front window"#)
+        }
         _ => None,
     }
 }

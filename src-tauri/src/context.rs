@@ -26,6 +26,8 @@ fn browser_id(identity: &str) -> Option<&'static str> {
         "com.google.chrome" => return Some("chrome"),
         "com.microsoft.edgemac" => return Some("edge"),
         "com.apple.safari" => return Some("safari"),
+        "com.citrolabs.ego.lite" => return Some("ego"),
+        "at.studio.asidebrowser" => return Some("aside"),
         "org.mozilla.firefox" | "org.mozilla.firefoxdeveloperedition" => return Some("firefox"),
         _ => {}
     }
