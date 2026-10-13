@@ -26,6 +26,8 @@ fn browser_id(identity: &str) -> Option<&'static str> {
         "com.google.chrome" => return Some("chrome"),
         "com.microsoft.edgemac" => return Some("edge"),
         "com.apple.safari" => return Some("safari"),
+        "com.citrolabs.ego.lite" => return Some("ego"),
+        "at.studio.asidebrowser" => return Some("aside"),
         "org.mozilla.firefox" | "org.mozilla.firefoxdeveloperedition" => return Some("firefox"),
         _ => {}
     }
@@ -80,4 +82,15 @@ pub fn refresh(app: &AppHandle) {
     }
 
     let _ = app.emit("context", captured);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::browser_id;
+
+    #[test]
+    fn recognises_ego_and_aside() {
+        assert_eq!(browser_id("com.citrolabs.ego.lite"), Some("ego"));
+        assert_eq!(browser_id("at.studio.AsideBrowser"), Some("aside"));
+    }
 }
