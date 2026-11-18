@@ -60,11 +60,7 @@ mise build      # bundle
 
 ## Releases
 
-Bump `version` in `src-tauri/Cargo.toml`, commit to `main`, then:
-
-```sh
-mise publish
-```
+Bump `version` in `src-tauri/Cargo.toml` and add its entry to `CHANGELOG.md` in your PR. Merging it to `main` builds every platform, tags `pikmin-mention==<version>` and publishes the release; installed apps offer the update from the tray.
 
 ## Privacy
 
