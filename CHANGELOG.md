@@ -5,6 +5,7 @@
 ## [1.0.17] - 2026-11-18
 
 - Offer `gpt-6.2-sol` and `gpt-6.2-astra` in place of `gpt-6.1-sol` and `gpt-6-astra`.
+- Release on merge: a version bump merged to `main` is built, tagged and published without running `mise publish`.
 
 ## [1.0.16] - 2026-10-13
 
