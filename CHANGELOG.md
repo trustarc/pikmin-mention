@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [1.0.17] - 2026-11-18
+
+- Offer `gpt-6.2-sol` and `gpt-6.2-astra` in place of `gpt-6.1-sol` and `gpt-6-astra`.
+
 ## [1.0.16] - 2026-10-13
 
 - macOS: pick the pack for the current site in Ego and Aside. Neither was recognised as a browser, so their address was never read and no pack was selected.
